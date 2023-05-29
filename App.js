@@ -13,9 +13,9 @@ const Stack = createStackNavigator();
 function MyStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Home" component={CurrentWeather} />
-      <Stack.Screen name="WeatherDetails" component={WeatherDetails} />
-      <Stack.Screen name="Forecasts" component={Forecasts} />
+      <Stack.Screen name="Home" component={CurrentWeather} options={{title:'Home'}}/>
+      <Stack.Screen name="WeatherDetails" component={WeatherDetails} options={{title:'Weather Details'}} />
+      <Stack.Screen name="Forecasts" component={Forecasts} options={{title:'Forecast'}} />
     </Stack.Navigator>
   );
 }
