@@ -1,27 +1,55 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Button, Text, ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
 import MI from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
 
-
 export default function CurrentWeather({ navigation }) {
     const [data, setData] = useState(null);
+    const [lat,setLat] = useState();
+    const [long, setLong] = useState();
+    const [url, setUrl] = useState('');
+
+    // const getLocation = ()=> {
+    //     if(navigator.geolocation){
+    //         navigator.geolocation.getCurrentPosition((position)=>{
+    //             const la=position.coords.latitude;
+    //             const lon=position.coords.longitude;
+    //             setLat(la);
+    //             setLong(lon);
+    //             setUrl('http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=${lat},${long}&aqi=no')
+    //             console.log(lat);
+    //             console.log(long);
+    //         })
+    //     }
+    // }
+
+    // const getWeather = async () => {
+    //     try{
+    //         const res = await axios.get(url)
+    //         setData(res.data);
+    //     }catch(error){
+    //         console.log('Error fetching weather data:', error);
+    //     }
+    // }
+
+      const fetchWeather = async () => {
+          try {
+              const res = await axios.get('http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=beirut&aqi=no');
+              setData(res.data);
+          } catch (error) {
+              console.log('Error fetching weather data:', error);
+          }
+      };
 
     useEffect(() => {
-        const fetchWeather = async()=>{
-            try{
-                const res= await axios.get('http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=Tripoli-Lebanon&aqi=no');
-                setData(res.data);
-            }catch(error){
-                console.log('Error fetching weather data:', error);
-            }
-        };
+        //getLocation();
+        //getWeather();
         fetchWeather();
     }, []);
 
     if (!data) {
-        return <Text style={{ flex: 1, textAlign:"center" }}>Loading...</Text>;
-      }
+        return <Text style={{ flex: 1, textAlign: "center" }}>Loading...</Text>;
+    }
 
 
     return (
@@ -33,8 +61,8 @@ export default function CurrentWeather({ navigation }) {
                 </View>
 
                 <View style={{ flex: 2, flexDirection: "row" }}>
-                    <Text style={{ fontSize: 60, color: "white" ,margin:10}} >{data.current.temp_c}°</Text>
-                    <MI name="weather-lightning-rainy" size={100} color="white" style={{margin:20}}/>
+                    <Text style={{ fontSize: 60, color: "white", margin: 10 }} >{data.current.temp_c}°</Text>
+                    <MI name="weather-lightning-rainy" size={100} color="white" style={{ margin: 20 }} />
                 </View>
 
                 <View style={{ flex: 4 }}>
@@ -55,6 +83,7 @@ export default function CurrentWeather({ navigation }) {
 
                         <Button style={styles.butt} title='7-day Forecast' onPress={() => navigation.navigate('Forecasts')} />  */}
                 </View>
+                <Button style={styles.butt} title='Details...' onPress={() => navigation.navigate('others')} />
             </View>
         </ImageBackground>
     )
