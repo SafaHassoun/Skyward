@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Button, TouchableOpacity} from 'react-native';
 //import FA from 'react-native-vector-icons/FontAwesome';
 //import MI from 'react-native-vector-icons/MaterialCommunityIcons';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -7,16 +7,22 @@ import {NavigationContainer} from '@react-navigation/native';
 import CurrentWeather from './src/components/CurrentWeather';
 import WeatherDetails from './src/components/WeatherDetails';
 import Forecasts from './src/components/Forecasts';
+import OtherCities from './src/components/OtherCities';
 
 const Stack = createStackNavigator();
 
-function MyStack() {
+function MyStack({navigation}) {
   return (
     <Stack.Navigator>
       <Stack.Screen
         name="Home"
         component={CurrentWeather}
-        options={{title: 'Home'}}
+        options={{
+          title: 'Home',
+          headerRight: () => (
+            <Button title="Info" onPress={() => alert('hellooo')} />
+          ),
+        }}
       />
       <Stack.Screen
         name="WeatherDetails"
@@ -27,6 +33,11 @@ function MyStack() {
         name="Forecasts"
         component={Forecasts}
         options={{title: 'Forecast'}}
+      />
+      <Stack.Screen
+        name="others"
+        component={OtherCities}
+        options={{title: 'Cities'}}
       />
     </Stack.Navigator>
   );
