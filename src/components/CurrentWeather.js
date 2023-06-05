@@ -1,45 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { View, Button, Text, ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
-import MI from 'react-native-vector-icons/MaterialCommunityIcons';
+import MI from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
 
 export default function CurrentWeather({ navigation }) {
     const [data, setData] = useState(null);
-    const [lat,setLat] = useState();
-    const [long, setLong] = useState();
-    const [url, setUrl] = useState('');
+    const [date, setDate] = useState(null);
+    const [city, setCity] = useState(null);
+    const [temp, setTemp] = useState();
+    const [icon, setIcon] = useState(null);
+    const [feelslike, setFeelsLike] = useState();
+    const [condition, setCondition] = useState(null);
+    //const [day, setDay] = useState(0);
 
-    // const getLocation = ()=> {
-    //     if(navigator.geolocation){
-    //         navigator.geolocation.getCurrentPosition((position)=>{
-    //             const la=position.coords.latitude;
-    //             const lon=position.coords.longitude;
-    //             setLat(la);
-    //             setLong(lon);
-    //             setUrl('http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=${lat},${long}&aqi=no')
-    //             console.log(lat);
-    //             console.log(long);
-    //         })
-    //     }
-    // }
+    const fetchWeather = async () => {
+        try {
+            const res = await axios.get('http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=beirut&aqi=no');
+            setDate(res.data.location.localtime);
+            setCity(res.data.location.name);
+            setTemp(res.data.current.temp_c);
+            setFeelsLike(res.data.current.feelslike_c);
+            setCondition(res.data.current.condition.text);
 
-    // const getWeather = async () => {
-    //     try{
-    //         const res = await axios.get(url)
-    //         setData(res.data);
-    //     }catch(error){
-    //         console.log('Error fetching weather data:', error);
-    //     }
-    // }
+            (condition == "Sunny") ? setIcon("sun") : (condition == "Cloudy") ? setIcon("cloud-sun") :
+                (condition == "Windy") ? setIcon("wind") : (condition == "Snowy") ? setIcon("snowflake") :
+                    (condition == "Rainy") ? setIcon("cloud-rain") : (condition == "Clear") ? setIcon("moon") :
+                        (condition == "Partly cloudy") ? setIcon("coud-moon") : setIcon("cloud-moon-rain")
 
-      const fetchWeather = async () => {
-          try {
-              const res = await axios.get('http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=beirut&aqi=no');
-              setData(res.data);
-          } catch (error) {
-              console.log('Error fetching weather data:', error);
-          }
-      };
+            setData(res.data);
+        } catch (error) {
+            console.log('Error fetching weather data:', error);
+        }
+    };
 
     useEffect(() => {
         //getLocation();
@@ -48,7 +40,7 @@ export default function CurrentWeather({ navigation }) {
     }, []);
 
     if (!data) {
-        return <Text style={{ flex: 1, textAlign: "center" }}>Loading...</Text>;
+        return <Text>Loading...</Text>
     }
 
 
@@ -56,18 +48,18 @@ export default function CurrentWeather({ navigation }) {
         <ImageBackground source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7vFpfZSjG1TiOCrvGcgo0JvbxRWvLeKCZmw&usqp=CAU' }} style={styles.image}>
             <View style={styles.container}>
                 <View style={{ flex: 2 }}>
-                    <Text style={styles.text} >Tuesday, 30 May 2023</Text>
-                    <Text style={[styles.text, { fontSize: 30, fontStyle: "normal" }]} >{data.location.name}</Text>
+                    <Text style={styles.text} >{date}</Text>
+                    <Text style={[styles.text, { fontSize: 30, fontStyle: "normal" }]} >{city}</Text>
                 </View>
 
-                <View style={{ flex: 2, flexDirection: "row" }}>
-                    <Text style={{ fontSize: 60, color: "white", margin: 10 }} >{data.current.temp_c}°</Text>
-                    <MI name="weather-lightning-rainy" size={100} color="white" style={{ margin: 20 }} />
+                <View style={{ flex: 3, flexDirection: "row" }}>
+                    <Text style={{ fontSize: 70, color: "white", margin: 10 }} >{temp}°</Text>
+                    <MI name={icon} size={120} color="white" style={{ margin: 20 }} />
                 </View>
 
                 <View style={{ flex: 4 }}>
-                    <Text style={styles.text} >Feels like {data.current.feelslike_c}°</Text>
-                    <Text style={styles.text} >{data.current.condition.text}</Text>
+                    <Text style={styles.text} >Feels like {feelslike}°</Text>
+                    <Text style={styles.text} >{condition}</Text>
                 </View>
 
                 <View style={{ flex: 2, flexDirection: "row", alignItems: 'center', justifyContent: 'center' }}>
@@ -78,10 +70,6 @@ export default function CurrentWeather({ navigation }) {
                     <TouchableOpacity onPress={() => navigation.navigate('Forecasts')} >
                         <Text style={[styles.text, { marginLeft: 10 }]} >7-day Forecast</Text>
                     </TouchableOpacity>
-
-                    {/* <Button style={styles.butt} title='Details...' onPress={() => navigation.navigate('Weatherdetails')} /> 
-
-                        <Button style={styles.butt} title='7-day Forecast' onPress={() => navigation.navigate('Forecasts')} />  */}
                 </View>
                 <Button style={styles.butt} title='Details...' onPress={() => navigation.navigate('others')} />
             </View>
@@ -111,7 +99,31 @@ const styles = StyleSheet.create({
     }
 })
 
+ //(weather == sunny) ? 'sunny' : (weather == sunny) ? 'sunny' : 'raining'
 
+
+// const getLocation = ()=> {
+    //     if(navigator.geolocation){
+    //         navigator.geolocation.getCurrentPosition((position)=>{
+    //             const la=position.coords.latitude;
+    //             const lon=position.coords.longitude;
+    //             setLat(la);
+    //             setLong(lon);
+    //             setUrl('http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=${lat},${long}&aqi=no')
+    //             console.log(lat);
+    //             console.log(long);
+    //         })
+    //     }
+    // }
+
+    // const getWeather = async () => {
+    //     try{
+    //         const res = await axios.get(url)
+    //         setData(res.data);
+    //     }catch(error){
+    //         console.log('Error fetching weather data:', error);
+    //     }
+    // }
 
 
 // <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
