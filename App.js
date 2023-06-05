@@ -5,7 +5,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import CurrentWeather from './src/components/CurrentWeather';
 import WeatherDetails from './src/components/WeatherDetails';
 import Forecasts from './src/components/Forecasts';
-import OtherCities from './src/components/OtherCities';
 import NI from 'react-native-vector-icons/FontAwesome';
 
 const Stack = createStackNavigator();
@@ -34,11 +33,6 @@ function MyStack({ navigation }) {
         name="Forecasts"
         component={Forecasts}
         options={{ title: 'Forecast' }}
-      />
-      <Stack.Screen
-        name="others"
-        component={OtherCities}
-        options={{ title: 'Cities' }}
       />
     </Stack.Navigator>
   );
