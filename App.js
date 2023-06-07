@@ -1,15 +1,16 @@
 import React from 'react';
-import { View, Text, Button, TouchableOpacity } from 'react-native';
+import { View, Text, Button, TouchableOpacity, SafeAreaView, FlatList } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import CurrentWeather from './src/components/CurrentWeather';
 import WeatherDetails from './src/components/WeatherDetails';
 import Forecasts from './src/components/Forecasts';
 import NI from 'react-native-vector-icons/FontAwesome';
+import SideMenu from './src/components/SideMenu';
 
 const Stack = createStackNavigator();
 
-function MyStack({ navigation }) {
+function MyStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -18,9 +19,10 @@ function MyStack({ navigation }) {
         options={{
           title: 'Home',
           headerRight: () => (
-            <TouchableOpacity onPress={() => alert("hello")} >
-              <NI name="navicon" size={40} color="black" backgroundColor="white" style={{marginRight:20}}/>
-            </TouchableOpacity>
+            <SideMenu/>
+            // <TouchableOpacity onPress={() => alert("hello")} >
+            //   <NI name="navicon" size={40} color="black" backgroundColor="white" style={{marginRight:20}}/>
+            // </TouchableOpacity>
           ),
         }}
       />
@@ -45,10 +47,3 @@ export default function App() {
     </NavigationContainer>
   );
 }
-
-// <View>
-//   <Text>Hello
-//     <FA name="home" size={30} color="#900" />
-//     <MI name="weather-lightning-rainy" size={30} color="#900" />
-//   </Text>
-// </View>
