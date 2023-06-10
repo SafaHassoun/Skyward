@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
-  PermissionsAndroid,
   ImageBackground,
   ActivityIndicator,
   StyleSheet,
@@ -69,44 +68,6 @@ const WeatherApp = () => {
   const [showAllHours, setShowAllHours] = useState(false);
   const apiKey = '1469bcf832b14b239c9114030232705';
   const maxDisplayedHours = 5;
-
-  useEffect(() => {
-    requestLocationPermission();
-  }, []);
-
-  const requestLocationPermission = async () => {
-    try {
-      let permissionStatus;
-      if (Platform.OS === 'android') {
-        permissionStatus = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        );
-      } else if (Platform.OS === 'ios') {
-        permissionStatus = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-      }
-
-      if (permissionStatus === RESULTS.GRANTED) {
-        getCurrentLocation();
-      } else {
-        console.log('Location permission denied');
-      }
-    } catch (error) {
-      console.error('Error requesting location permission:', error);
-    }
-  };
-
-  const getCurrentLocation = () => {
-    Geolocation.getCurrentPosition(
-      position => {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        fetchWeatherData(latitude, longitude);
-      },
-      error => {
-        console.error('Error getting current location:', error);
-      },
-    );
-  };
 
   const fetchWeatherData = async (latitude, longitude) => {
     try {
