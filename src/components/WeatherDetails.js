@@ -8,9 +8,6 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import Geolocation from 'react-native-geolocation-service';
-import axios from 'axios';
-import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
 const styles = StyleSheet.create({
   card: {
@@ -81,9 +78,9 @@ const WeatherApp = ({selectedCity, requestLocationPermission}) => {
         setTemp(selectedCity.current.temp_c);
         setHumidity(selectedCity.current.humidity);
         setHourlyForecast(selectedCity.forecast.forecastday[0].hour);
-        const displayedHours = showAllHours
-          ? hourlyForecast
-          : hourlyForecast.slice(0, maxDisplayedHours);
+        // const displayedHours = showAllHours
+        //   ? hourlyForecast
+        //   : hourlyForecast.slice(0, maxDisplayedHours);
       }
     } catch (error) {
       console.error('Error fetching weather data:', error);

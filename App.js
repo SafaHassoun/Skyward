@@ -45,7 +45,7 @@ function AppStack() {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
         const res = await axios.get(
-          `http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=${latitude},${longitude}&days=${daysNumber}&aqi=no`,
+          `http://api.weatherapi.com/v1/forecast.json?key=1469bcf832b14b239c9114030232705&q=${latitude},${longitude}&days=${daysNumber}&aqi=no`,
         );
         setSelectedCity(res.data);
       },
@@ -101,7 +101,6 @@ function AppStack() {
           <Forecasts
             {..._props}
             selectedCity={selectedCity}
-            daysNumber={daysNumber}
             setDaysNumber={setDaysNumber}
             requestLocationPermission={requestLocationPermission}
           />
