@@ -13,6 +13,8 @@ import axios from 'axios';
 const Stack = createStackNavigator();
 
 function AppStack() {
+  const [daysNumber, setDaysNumber] = useState('1');
+
   useEffect(() => {
     requestLocationPermission();
   }, []);
@@ -43,17 +45,19 @@ function AppStack() {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
         const res = await axios.get(
-          `http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=${latitude},${longitude}&aqi=no`,
+          `http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=${latitude},${longitude}&days=${daysNumber}&aqi=no`,
         );
-        setSelectedCity(res.data.location);
+        setSelectedCity(res.data);
       },
       error => {
         console.error('Error getting current location:', error);
       },
     );
   };
+
   const [showSideMenu, setShowSideMenu] = useState(false);
   const [selectedCity, setSelectedCity] = useState(null);
+
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -79,19 +83,30 @@ function AppStack() {
             setSelectedCity={setSelectedCity}
             showSideMenu={showSideMenu}
             setShowSideMenu={setShowSideMenu}
+            requestLocationPermission={requestLocationPermission}
           />
         )}
       </Stack.Screen>
-      <Stack.Screen
-        name="WeatherDetails"
-        component={WeatherDetails}
-        options={{title: 'Weather Details'}}
-      />
-      <Stack.Screen
-        name="Forecasts"
-        component={Forecasts}
-        options={{title: 'Forecast'}}
-      />
+      <Stack.Screen name="WeatherDetails" options={{title: 'Weather Details'}}>
+        {_props => (
+          <WeatherDetails
+            {..._props}
+            selectedCity={selectedCity}
+            requestLocationPermission={requestLocationPermission}
+          />
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="Forecasts" options={{title: 'Forecast'}}>
+        {_props => (
+          <Forecasts
+            {..._props}
+            selectedCity={selectedCity}
+            daysNumber={daysNumber}
+            setDaysNumber={setDaysNumber}
+            requestLocationPermission={requestLocationPermission}
+          />
+        )}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }

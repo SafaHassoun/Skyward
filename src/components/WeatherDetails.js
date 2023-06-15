@@ -63,18 +63,28 @@ const styles = StyleSheet.create({
   },
 });
 
-const WeatherApp = () => {
-  const [weatherData, setWeatherData] = useState(null);
+const WeatherApp = ({selectedCity, requestLocationPermission}) => {
   const [showAllHours, setShowAllHours] = useState(false);
-  const apiKey = '1469bcf832b14b239c9114030232705';
   const maxDisplayedHours = 5;
+  const [location, setLocation] = useState(null);
+  const [condition, setCondition] = useState(null);
+  const [temp, setTemp] = useState(null);
+  const [humidity, setHumidity] = useState(null);
+  const [hourlyForecast, setHourlyForecast] = useState(null);
 
-  const fetchWeatherData = async (latitude, longitude) => {
+  const fetchWeatherData = async () => {
     try {
-      const response = await axios.get(
-        `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${latitude},${longitude}&days=1&aqi=no&alerts=no`,
-      );
-      setWeatherData(response.data);
+      requestLocationPermission();
+      if (selectedCity) {
+        setLocation(selectedCity.location.name);
+        setCondition(selectedCity.current.condition.text);
+        setTemp(selectedCity.current.temp_c);
+        setHumidity(selectedCity.current.humidity);
+        setHourlyForecast(selectedCity.forecast.forecastday[0].hour);
+        const displayedHours = showAllHours
+          ? hourlyForecast
+          : hourlyForecast.slice(0, maxDisplayedHours);
+      }
     } catch (error) {
       console.error('Error fetching weather data:', error);
     }
@@ -84,22 +94,17 @@ const WeatherApp = () => {
     setShowAllHours(!showAllHours);
   };
 
-  if (!weatherData) {
+  if (!selectedCity) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
-  const location = weatherData.location.name;
-  const condition = weatherData.current.condition.text;
-  const temperature = weatherData.current.temp_c;
-  const humidity = weatherData.current.humidity;
 
-  const hourlyForecast = weatherData.forecast.forecastday[0].hour;
-  const displayedHours = showAllHours
-    ? hourlyForecast
-    : hourlyForecast.slice(0, maxDisplayedHours);
+  useEffect(() => {
+    fetchWeatherData();
+  }, []);
 
   return (
     <View style={{flex: 1}}>
@@ -115,12 +120,12 @@ const WeatherApp = () => {
               <Text>Condition: {condition}</Text>
             </View>
             <View style={styles.card}>
-              <Text>Temperature: {temperature}°C</Text>
+              <Text>Temperature: {temp}°C</Text>
             </View>
             <View style={styles.card}>
               <Text>Humidity: {humidity}%</Text>
             </View>
-            {displayedHours.map(hour => (
+            {/* {displayedHours.map(hour => (
               <View key={hour.time} style={styles.hourlyCard}>
                 <Text style={styles.hourlyText}>Time: {hour.time}</Text>
                 <Text>Condition: {hour.condition.text}</Text>
@@ -134,7 +139,7 @@ const WeatherApp = () => {
                 onPress={toggleShowAllHours}>
                 <Text style={styles.buttonText}>Show More Hours</Text>
               </TouchableOpacity>
-            )}
+            )} */}
           </View>
         </ScrollView>
       </ImageBackground>

@@ -19,6 +19,7 @@ export default function CurrentWeather({
   selectedCity,
   setSelectedCity,
   setShowSideMenu,
+  requestLocationPermission,
 }) {
   const [date, setDate] = useState(null);
   const [city, setCity] = useState(null);
@@ -88,15 +89,15 @@ export default function CurrentWeather({
 
   const fetchWeather = async () => {
     try {
-      const res = await axios.get(
-        'http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=Trablous&aqi=no',
-      );
-      setDate(res.data.location.localtime);
-      setCity(res.data.location.name);
-      setTemp(res.data.current.temp_c);
-      setFeelsLike(res.data.current.feelslike_c);
-      setCondition(res.data.current.condition.text);
-      setDay(res.data.current.is_day);
+      requestLocationPermission();
+      if (selectedCity) {
+        setDate(selectedCity.location.localtime);
+        setCity(selectedCity.location.name);
+        setTemp(selectedCity.current.temp_c);
+        setFeelsLike(selectedCity.current.feelslike_c);
+        setCondition(selectedCity.current.condition.text);
+        setDay(selectedCity.current.is_day);
+      }
     } catch (error) {
       console.log('Error fetching weather data:', error);
     }

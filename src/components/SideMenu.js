@@ -1,9 +1,11 @@
 import React, {useState} from 'react';
 import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import MenuDrawer from 'react-native-side-drawer';
-import {FlatList} from 'react-native-gesture-handler';
-import CurrentWeather from './CurrentWeather';
+import {FlatList, TextInput} from 'react-native-gesture-handler';
 import cities from 'cities.json';
+import {color} from 'react-native-elements/dist/helpers';
+import MI from 'react-native-vector-icons/FontAwesome';
+import {SearchBar} from 'react-native-elements';
 
 export default function SideMenu({
   showSideMenu,
@@ -11,17 +13,51 @@ export default function SideMenu({
   selectedCity,
 }) {
   const [showCities, setShowCities] = useState(false);
-  let list = [
+  const [listCities, setListCities] = useState([
     {
-      country: 'FR',
-      name: 'Lyon',
-      lat: '45.75',
-      lng: '4.583333',
+      country: 'LB',
+      name: 'Zghartā',
+      lat: '34.39739',
+      lng: '35.89493',
     },
-    {id: '0', name: 'Tripoli'},
-    {id: '1', name: 'Beirut'},
-    {id: '2', name: 'Batroun'},
-  ];
+    {
+      country: 'LB',
+      name: 'Zahlé',
+      lat: '33.84675',
+      lng: '35.90203',
+    },
+    {
+      country: 'LB',
+      name: 'Tripoli',
+      lat: '34.43352',
+      lng: '35.84415',
+    },
+    {
+      country: 'LB',
+      name: 'Beirut',
+      lat: '33.89332',
+      lng: '35.50157',
+    },
+  ]);
+  const [search, setSearch] = useState('');
+  const [filteredData, setFilteredData] = useState(cities);
+  const [Lcities, setLcities] = useState(cities);
+
+  const searchFilterFunction = text => {
+    if (text) {
+      const newData = Lcities.filter(item => {
+        const itemData = item.title
+          ? item.title.toUpperCase()
+          : ''.toUpperCase();
+        const textData = text.toUpperCase();
+      });
+      setFilteredData(newData);
+      setSearch(text);
+    } else {
+      setFilteredData(cities);
+      setSearch(text);
+    }
+  };
 
   return (
     <View
@@ -42,11 +78,18 @@ export default function SideMenu({
                 }}
                 onPress={() => {
                   setShowCities(false);
+                  setListCities([...listCities, selectedCity]);
                 }}>
                 <Text style={{color: '#ecf0f1'}}>Submit</Text>
               </TouchableOpacity>
+              <SearchBar
+                onChangeText={text => searchFilterFunction(text)}
+                onClear={text => searchFilterFunction('')}
+                placeholder="Search..."
+                value={search}
+              />
               <FlatList
-                data={cities}
+                data={filteredData}
                 style={{height: 400, zIndex: 999999999999}}
                 renderItem={({item}) => (
                   <TouchableOpacity
@@ -88,7 +131,7 @@ export default function SideMenu({
                 <Text style={{color: '#ecf0f1'}}>Add City</Text>
               </TouchableOpacity>
               <FlatList
-                data={list}
+                data={listCities}
                 style={{flex: 1}}
                 renderItem={({item}) => (
                   <TouchableOpacity
@@ -130,7 +173,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     margin: 10,
   },
-  text: {
-    color: '',
-  },
 });
+
+{
+  /* <View style={{flexDirection: 'row'}}>
+  <TextInput
+    placeholder="Search"
+    value={text}
+    onChangeText={setText}
+    inputMode="search"
+    style={{
+      //backgroundColor: '#2980b9',
+      color: '#ecf0f1',
+      width: '80%',
+      margin: 5,
+    }}
+  />
+  <MI name="search" size={30} color="#fff" style={{marginTop: 12}} />
+</View>; */
+}
