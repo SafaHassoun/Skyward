@@ -9,6 +9,7 @@ import NI from 'react-native-vector-icons/FontAwesome';
 import Geolocation from '@react-native-community/geolocation';
 import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import axios from 'axios';
+import RequestEngine from './src/request/engine';
 
 const Stack = createStackNavigator();
 
@@ -32,21 +33,17 @@ function AppStack() {
 
       if (permissionStatus === RESULTS.GRANTED) {
         getCurrentLocation();
-      } else {
-        console.log('Location permission denied');
       }
-    } catch (error) {
-      console.error('Error requesting location permission:', error);
-    }
+    } catch (error) {}
   };
+
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       async position => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
-        const res = await axios.get(
-          `http://api.weatherapi.com/v1/forecast.json?key=1469bcf832b14b239c9114030232705&q=${latitude},${longitude}&days=${daysNumber}&aqi=no`,
-        );
+        const request = new RequestEngine();
+        const res = await request.getCurrentWeather(latitude, longitude);
         setSelectedCity(res.data);
       },
       error => {
@@ -83,7 +80,6 @@ function AppStack() {
             setSelectedCity={setSelectedCity}
             showSideMenu={showSideMenu}
             setShowSideMenu={setShowSideMenu}
-            requestLocationPermission={requestLocationPermission}
           />
         )}
       </Stack.Screen>

@@ -6,12 +6,14 @@ import {
   ImageBackground,
   StyleSheet,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import MI from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
 import Video from 'react-native-video';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import SideMenu from './SideMenu';
+import WeatherIcon from './WeatherIcon';
 
 export default function CurrentWeather({
   navigation,
@@ -19,97 +21,22 @@ export default function CurrentWeather({
   selectedCity,
   setSelectedCity,
   setShowSideMenu,
-  requestLocationPermission,
 }) {
-  const [date, setDate] = useState(null);
-  const [city, setCity] = useState(null);
-  const [temp, setTemp] = useState();
-  const [icon, setIcon] = useState(null);
-  const [feelslike, setFeelsLike] = useState();
-  const [condition, setCondition] = useState(null);
-  const [day, setDay] = useState(0);
-  const [video, setVideo] = useState('');
+  const {localtime, name} = selectedCity?.location ?? {};
+  const {temp_c, feelslike_c, condition, is_day} = selectedCity?.current ?? {};
 
-  const Icons = () => {
-    if (day == 1) {
-      switch (condition) {
-        case 'Sunny':
-          setIcon('sun');
-          break;
-        case 'Clear':
-          setIcon('sun');
-          break;
-        case 'Cloudy':
-          setIcon('cloud-sun');
-          break;
-        case 'Partly cloudy':
-          setIcon('cloud-sun');
-          break;
-        case 'Patchy rain possible':
-          setIcon('cloud-sun');
-          break;
-        case 'Windy':
-          setIcon('wind');
-          break;
-        case 'Snowy':
-          setIcon('snowflake');
-          break;
-        case 'Rainy':
-          setIcon('cloud-rain');
-          break;
-      }
-    } else {
-      switch (condition) {
-        case 'Clear':
-          setIcon('moon');
-          break;
-        case 'Cloudy':
-          setIcon('cloud-moon');
-          break;
-        case 'Partly cloudy':
-          setIcon('cloud-moon');
-          break;
-        case 'Patchy rain possible':
-          setIcon('cloud-moon');
-          break;
-        case 'Windy':
-          setIcon('wind');
-          break;
-        case 'Snowy':
-          setIcon('snowflake');
-          break;
-        case 'Rainy':
-          setIcon('cloud-moon-rain');
-          break;
-      }
-    }
-  };
-
-  const BackgroundVideo = () => {};
-
-  const fetchWeather = async () => {
-    try {
-      requestLocationPermission();
-      if (selectedCity) {
-        setDate(selectedCity.location.localtime);
-        setCity(selectedCity.location.name);
-        setTemp(selectedCity.current.temp_c);
-        setFeelsLike(selectedCity.current.feelslike_c);
-        setCondition(selectedCity.current.condition.text);
-        setDay(selectedCity.current.is_day);
-      }
-    } catch (error) {
-      console.log('Error fetching weather data:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchWeather();
-    Icons();
-  }, []);
+  useEffect(() => {});
 
   return (
     <SafeAreaView style={styles.container}>
+      <Video
+        source={require('../../Videos/cloudy1.mp4')} // Can be a URL or a local file.
+        ref={ref => {
+          this.player = ref;
+        }} // Store reference
+        // Callback when video cannot be loaded
+        style={styles.backgroundVideo}
+      />
       <SideMenu
         showSideMenu={showSideMenu}
         selectedCity={selectedCity}
@@ -122,22 +49,22 @@ export default function CurrentWeather({
         }}
         style={styles.image}>
         <View style={{flex: 2}}>
-          <Text style={styles.text}>{date}</Text>
+          <Text style={styles.text}>{localtime}</Text>
           <Text style={[styles.text, {fontSize: 30, fontStyle: 'normal'}]}>
-            {city}
+            {name}
           </Text>
         </View>
 
         <View style={{flex: 3, flexDirection: 'row'}}>
-          <Text style={{fontSize: 60, color: 'white', margin: 10}}>
-            {temp}°
+          <Text style={{fontSize: 55, color: 'white', margin: 10}}>
+            {temp_c}°C
           </Text>
-          <MI name={icon} size={110} color="white" style={{margin: 20}} />
+          <WeatherIcon condition={condition?.text} day={is_day} />
         </View>
 
         <View style={{flex: 4}}>
-          <Text style={styles.text}>Feels like {feelslike}°</Text>
-          <Text style={styles.text}>{condition}</Text>
+          <Text style={styles.text}>Feels like {feelslike_c}°</Text>
+          <Text style={styles.text}>{condition?.text}</Text>
         </View>
 
         <View
@@ -179,6 +106,14 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     justifyContent: 'center',
+  },
+  // Later on in your styles..
+  backgroundVideo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
   },
   button: {
     margin: 20,

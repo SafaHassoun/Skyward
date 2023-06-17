@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import MenuDrawer from 'react-native-side-drawer';
 import {FlatList, TextInput} from 'react-native-gesture-handler';
-import cities from 'cities.json';
+import CITIES from 'cities.json';
 import {color} from 'react-native-elements/dist/helpers';
 import MI from 'react-native-vector-icons/FontAwesome';
 import {SearchBar} from 'react-native-elements';
@@ -40,25 +40,22 @@ export default function SideMenu({
     },
   ]);
   const [search, setSearch] = useState('');
-  const [filteredData, setFilteredData] = useState(cities);
-  const [Lcities, setLcities] = useState(cities);
-
-  const searchFilterFunction = text => {
-    if (text) {
-      const newData = Lcities.filter(item => {
-        const itemData = item.title
-          ? item.title.toUpperCase()
-          : ''.toUpperCase();
-        const textData = text.toUpperCase();
-      });
-      setFilteredData(newData);
-      setSearch(text);
+  const [cities, setCities] = useState(null);
+  useEffect(() => {
+    searchCities();
+  }, [search]);
+  const searchCities = () => {
+    if (search) {
+      let cities = CITIES.filter(
+        city =>
+          city.name.toLowerCase().startsWith(search.toLowerCase()) ||
+          city.country.toLowerCase().startsWith(search.toLowerCase()),
+      );
+      setCities(cities);
     } else {
-      setFilteredData(cities);
-      setSearch(text);
+      setCities(null);
     }
   };
-
   return (
     <View
       style={{flex: 1, position: 'absolute', zIndex: 9999, top: 0, right: 0}}>
@@ -83,13 +80,13 @@ export default function SideMenu({
                 <Text style={{color: '#ecf0f1'}}>Submit</Text>
               </TouchableOpacity>
               <SearchBar
-                onChangeText={text => searchFilterFunction(text)}
-                onClear={text => searchFilterFunction('')}
-                placeholder="Search..."
+                onChangeText={setSearch}
+                onClear={() => setSearch(null)}
+                placeholder="Search city"
                 value={search}
               />
               <FlatList
-                data={filteredData}
+                data={cities}
                 style={{height: 400, zIndex: 999999999999}}
                 renderItem={({item}) => (
                   <TouchableOpacity
