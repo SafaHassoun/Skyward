@@ -12,6 +12,7 @@ import axios from 'axios';
 import Video from 'react-native-video';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import SideMenu from './SideMenu';
+import WeatherDetails from './WeatherDetails';
 
 export default function CurrentWeather({
   navigation,
