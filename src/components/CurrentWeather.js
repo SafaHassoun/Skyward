@@ -8,12 +8,11 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import MI from 'react-native-vector-icons/FontAwesome5';
-import axios from 'axios';
-import Video from 'react-native-video';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import SideMenu from './SideMenu';
 import WeatherIcon from './WeatherIcon';
+import RequestEngine from '../request/engine';
+import WeatherBackground from './WeatherBakground';
 
 export default function CurrentWeather({
   navigation,
@@ -22,21 +21,34 @@ export default function CurrentWeather({
   setSelectedCity,
   setShowSideMenu,
 }) {
-  const {localtime, name} = selectedCity?.location ?? {};
-  const {temp_c, feelslike_c, condition, is_day} = selectedCity?.current ?? {};
+  const [currentWeather, setCurrentWeather] = useState({});
+  const {localtime, name} = currentWeather?.location ?? {};
+  const {temp_c, feelslike_c, condition, is_day} =
+    currentWeather?.current ?? {};
 
-  useEffect(() => {});
+  const getWeather = async () => {
+    try {
+      const request = new RequestEngine();
+      //console.log(selectedCity, 'text');
+      if (selectedCity && selectedCity.lat && selectedCity.lng) {
+        const response = await request.getCurrentWeather(
+          selectedCity?.name,
+          selectedCity?.country,
+        );
+        //console.log({response}, 'esponse');
+        setCurrentWeather(response.data);
+      }
+    } catch (e) {
+      console.log(e, JSON.parse(JSON.stringify(e)));
+    }
+  };
+
+  useEffect(() => {
+    getWeather();
+  }, [selectedCity]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Video
-        source={require('../../Videos/cloudy1.mp4')} // Can be a URL or a local file.
-        ref={ref => {
-          this.player = ref;
-        }} // Store reference
-        // Callback when video cannot be loaded
-        style={styles.backgroundVideo}
-      />
       <SideMenu
         showSideMenu={showSideMenu}
         selectedCity={selectedCity}
@@ -45,7 +57,7 @@ export default function CurrentWeather({
       />
       <ImageBackground
         source={{
-          uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7vFpfZSjG1TiOCrvGcgo0JvbxRWvLeKCZmw&usqp=CAU',
+          uri: 'https://images.unsplash.com/photo-1620355058000-6d5d21504db3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=415&q=80',
         }}
         style={styles.image}>
         <View style={{flex: 2}}>
@@ -54,19 +66,16 @@ export default function CurrentWeather({
             {name}
           </Text>
         </View>
-
         <View style={{flex: 3, flexDirection: 'row'}}>
           <Text style={{fontSize: 55, color: 'white', margin: 10}}>
             {temp_c}°C
           </Text>
           <WeatherIcon condition={condition?.text} day={is_day} />
         </View>
-
         <View style={{flex: 4}}>
           <Text style={styles.text}>Feels like {feelslike_c}°</Text>
           <Text style={styles.text}>{condition?.text}</Text>
         </View>
-
         <View
           style={{
             flex: 2,
@@ -122,34 +131,3 @@ const styles = StyleSheet.create({
 });
 
 //(weather == sunny) ? 'sunny' : (weather == sunny) ? 'sunny' : 'raining'
-
-// const getLocation = ()=> {
-//     if(navigator.geolocation){
-//         navigator.geolocation.getCurrentPosition((position)=>{
-//             const la=position.coords.latitude;
-//             const lon=position.coords.longitude;
-//             setLat(la);
-//             setLong(lon);
-//             setUrl('http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=${lat},${long}&aqi=no')
-//             console.log(lat);
-//             console.log(long);
-//         })
-//     }
-// }
-
-// const getWeather = async () => {
-//     try{
-//         const res = await axios.get(url)
-//         setData(res.data);
-//     }catch(error){
-//         console.log('Error fetching weather data:', error);
-//     }
-// }
-
-// <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-//     <Text>Hello world</Text>
-//     <Button
-//         title="Go to Weather Details"
-//         onPress={() => navigation.navigate('WeatherDetails')}
-//     />
-// </View>

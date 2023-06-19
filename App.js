@@ -8,14 +8,11 @@ import Forecasts from './src/components/Forecasts';
 import NI from 'react-native-vector-icons/FontAwesome';
 import Geolocation from '@react-native-community/geolocation';
 import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
-import axios from 'axios';
 import RequestEngine from './src/request/engine';
 
 const Stack = createStackNavigator();
 
 function AppStack() {
-  const [daysNumber, setDaysNumber] = useState('1');
-
   useEffect(() => {
     requestLocationPermission();
   }, []);
@@ -44,7 +41,11 @@ function AppStack() {
         const longitude = position.coords.longitude;
         const request = new RequestEngine();
         const res = await request.getCurrentWeather(latitude, longitude);
-        setSelectedCity(res.data);
+        //console.log(res, 'res');
+        if (res?.data?.location?.lon) {
+          res.data.location.lng = res.data.location.lon;
+        }
+        setSelectedCity(res.data.location);
       },
       error => {
         console.error('Error getting current location:', error);
@@ -66,7 +67,7 @@ function AppStack() {
               <NI
                 name="navicon"
                 size={40}
-                color={showSideMenu ? 'red' : 'black'}
+                color={showSideMenu ? '#2980b9' : 'black'}
                 backgroundColor="white"
                 style={{marginRight: 20}}
               />
@@ -83,24 +84,13 @@ function AppStack() {
           />
         )}
       </Stack.Screen>
+
       <Stack.Screen name="WeatherDetails" options={{title: 'Weather Details'}}>
-        {_props => (
-          <WeatherDetails
-            {..._props}
-            selectedCity={selectedCity}
-            requestLocationPermission={requestLocationPermission}
-          />
-        )}
+        {_props => <WeatherDetails {..._props} selectedCity={selectedCity} />}
       </Stack.Screen>
+
       <Stack.Screen name="Forecasts" options={{title: 'Forecast'}}>
-        {_props => (
-          <Forecasts
-            {..._props}
-            selectedCity={selectedCity}
-            setDaysNumber={setDaysNumber}
-            requestLocationPermission={requestLocationPermission}
-          />
-        )}
+        {_props => <Forecasts {..._props} selectedCity={selectedCity} />}
       </Stack.Screen>
     </Stack.Navigator>
   );

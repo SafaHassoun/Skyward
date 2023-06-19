@@ -1,10 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import MenuDrawer from 'react-native-side-drawer';
-import {FlatList, TextInput} from 'react-native-gesture-handler';
+import {FlatList} from 'react-native-gesture-handler';
 import CITIES from 'cities.json';
-import {color} from 'react-native-elements/dist/helpers';
-import MI from 'react-native-vector-icons/FontAwesome';
 import {SearchBar} from 'react-native-elements';
 
 export default function SideMenu({
@@ -16,31 +14,25 @@ export default function SideMenu({
   const [listCities, setListCities] = useState([
     {
       country: 'LB',
-      name: 'Zghartā',
-      lat: '34.39739',
-      lng: '35.89493',
-    },
-    {
-      country: 'LB',
-      name: 'Zahlé',
-      lat: '33.84675',
-      lng: '35.90203',
-    },
-    {
-      country: 'LB',
       name: 'Tripoli',
       lat: '34.43352',
       lng: '35.84415',
     },
-    {
-      country: 'LB',
-      name: 'Beirut',
-      lat: '33.89332',
-      lng: '35.50157',
-    },
   ]);
   const [search, setSearch] = useState('');
   const [cities, setCities] = useState(null);
+
+  const updateListCities = async () => {
+    try {
+      let value = await AsyncStorage.getItem('listCities');
+      if (value !== null) {
+        setListCities(value);
+        Value = [...listCities, selectedCity];
+        await AsyncStorage.setItem('listCities');
+      }
+    } catch (error) {}
+  };
+
   useEffect(() => {
     searchCities();
   }, [search]);
@@ -75,7 +67,9 @@ export default function SideMenu({
                 }}
                 onPress={() => {
                   setShowCities(false);
-                  setListCities([...listCities, selectedCity]);
+                  !listCities.includes(selectedCity)
+                    ? setListCities([...listCities, selectedCity])
+                    : {};
                 }}>
                 <Text style={{color: '#ecf0f1'}}>Submit</Text>
               </TouchableOpacity>
@@ -102,7 +96,11 @@ export default function SideMenu({
                       style={{
                         fontSize: 14,
                         fontWeight: 'bold',
-                        color: '#ecf0f1',
+                        color:
+                          selectedCity?.name == item.name &&
+                          selectedCity?.country == item.country
+                            ? '#2ecc71'
+                            : '#ecf0f1',
                       }}>
                       {item.name}, {item.country}
                     </Text>
@@ -145,7 +143,8 @@ export default function SideMenu({
                         fontSize: 14,
                         fontWeight: 'bold',
                         color:
-                          selectedCity?.name == item.name
+                          selectedCity?.name == item.name &&
+                          selectedCity?.country == item.country
                             ? '#2ecc71'
                             : '#ecf0f1',
                       }}>
