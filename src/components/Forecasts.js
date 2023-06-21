@@ -1,10 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import axios from 'axios';
-import {View, StyleSheet, Image, PermissionsAndroid, Text} from 'react-native';
-import Geolocation from 'react-native-geolocation-service';
-import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {FlatList} from 'react-native-gesture-handler';
+import {View, StyleSheet, Image, Text, FlatList} from 'react-native';
+import RequestEngine from '../request/engine';
 
 const styles = StyleSheet.create({
   container: {
@@ -39,40 +35,42 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function Forecasts({
-  navigation,
-  selectedCity,
-  setDaysNumber,
-  requestLocationPermission,
-}) {
-  const [forecast, setForecast] = useState(null);
+export default function Forecasts({selectedCity}) {
+  const [forecast, setForecast] = useState({});
+  const {date} = forecast?.forecastday ?? {};
+  const {condition, mintemp_c, maxtemp_c} = forecast?.forecastday?.day ?? {};
 
-  const fetchWeatherData = async () => {
+  const getWeather = async () => {
     try {
-      setDaysNumber('7');
-      requestLocationPermission();
-      if (selectedCity) {
-        setForecast(selectedCity.forecast.forecastday);
+      const request = new RequestEngine();
+      console.log(selectedCity, 'text');
+      if (selectedCity && selectedCity.lat && selectedCity.lng) {
+        const response = await request.getForeCast(
+          selectedCity?.lat,
+          selectedCity?.lng,
+        );
+        //console.log({response}, 'esponse');
+        setForecast(response.data);
       }
-    } catch (error) {
-      console.error('Error fetching weather data:', error);
+    } catch (e) {
+      console.log(e, JSON.parse(JSON.stringify(e)));
     }
   };
 
   useEffect(() => {
-    fetchWeatherData();
-  }, []);
+    getWeather();
+  }, [selectedCity]);
 
-  const renderWeather = ({item: {date, day}}) => (
+  const renderWeather = () => (
     <View style={styles.itemContainer}>
       <Text style={styles.cardOne}>{date}</Text>
-      <Text style={styles.cardOne}>{day.condition.text}</Text>
+      <Text style={styles.cardOne}>{condition.text}</Text>
       <Image
         source={{uri: 'https:' + day.condition.icon}}
         style={styles.cardTwo}
       />
-      <Text style={styles.cardThree}>{day.mintemp_c}°C</Text>
-      <Text style={styles.cardThree}>{day.maxtemp_c}°C</Text>
+      <Text style={styles.cardThree}>{mintemp_c}°C</Text>
+      <Text style={styles.cardThree}>{maxtemp_c}°C</Text>
     </View>
   );
   return (

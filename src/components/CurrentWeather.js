@@ -6,13 +6,16 @@ import {
   ImageBackground,
   StyleSheet,
   TouchableOpacity,
+  Image,
 } from 'react-native';
-import MI from 'react-native-vector-icons/FontAwesome5';
-import axios from 'axios';
-import Video from 'react-native-video';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import SideMenu from './SideMenu';
+
 import WeatherDetails from './WeatherDetails';
+
+import WeatherIcon from './WeatherIcon';
+import RequestEngine from '../request/engine';
+import WeatherBackground from './WeatherBakground';
 
 export default function CurrentWeather({
   navigation,
@@ -20,94 +23,32 @@ export default function CurrentWeather({
   selectedCity,
   setSelectedCity,
   setShowSideMenu,
-  requestLocationPermission,
 }) {
-  const [date, setDate] = useState(null);
-  const [city, setCity] = useState(null);
-  const [temp, setTemp] = useState();
-  const [icon, setIcon] = useState(null);
-  const [feelslike, setFeelsLike] = useState();
-  const [condition, setCondition] = useState(null);
-  const [day, setDay] = useState(0);
-  const [video, setVideo] = useState('');
+  const [currentWeather, setCurrentWeather] = useState({});
+  const {localtime, name} = currentWeather?.location ?? {};
+  const {temp_c, feelslike_c, condition, is_day} =
+    currentWeather?.current ?? {};
 
-  const Icons = () => {
-    if (day == 1) {
-      switch (condition) {
-        case 'Sunny':
-          setIcon('sun');
-          break;
-        case 'Clear':
-          setIcon('sun');
-          break;
-        case 'Cloudy':
-          setIcon('cloud-sun');
-          break;
-        case 'Partly cloudy':
-          setIcon('cloud-sun');
-          break;
-        case 'Patchy rain possible':
-          setIcon('cloud-sun');
-          break;
-        case 'Windy':
-          setIcon('wind');
-          break;
-        case 'Snowy':
-          setIcon('snowflake');
-          break;
-        case 'Rainy':
-          setIcon('cloud-rain');
-          break;
-      }
-    } else {
-      switch (condition) {
-        case 'Clear':
-          setIcon('moon');
-          break;
-        case 'Cloudy':
-          setIcon('cloud-moon');
-          break;
-        case 'Partly cloudy':
-          setIcon('cloud-moon');
-          break;
-        case 'Patchy rain possible':
-          setIcon('cloud-moon');
-          break;
-        case 'Windy':
-          setIcon('wind');
-          break;
-        case 'Snowy':
-          setIcon('snowflake');
-          break;
-        case 'Rainy':
-          setIcon('cloud-moon-rain');
-          break;
-      }
-    }
-  };
-
-  const BackgroundVideo = () => {};
-
-  const fetchWeather = async () => {
+  const getWeather = async () => {
     try {
-      requestLocationPermission();
-      if (selectedCity) {
-        setDate(selectedCity.location.localtime);
-        setCity(selectedCity.location.name);
-        setTemp(selectedCity.current.temp_c);
-        setFeelsLike(selectedCity.current.feelslike_c);
-        setCondition(selectedCity.current.condition.text);
-        setDay(selectedCity.current.is_day);
+      const request = new RequestEngine();
+      //console.log(selectedCity, 'text');
+      if (selectedCity && selectedCity.lat && selectedCity.lng) {
+        const response = await request.getCurrentWeather(
+          selectedCity?.name,
+          selectedCity?.country,
+        );
+        //console.log({response}, 'esponse');
+        setCurrentWeather(response.data);
       }
-    } catch (error) {
-      console.log('Error fetching weather data:', error);
+    } catch (e) {
+      console.log(e, JSON.parse(JSON.stringify(e)));
     }
   };
 
   useEffect(() => {
-    fetchWeather();
-    Icons();
-  }, []);
+    getWeather();
+  }, [selectedCity]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -119,28 +60,25 @@ export default function CurrentWeather({
       />
       <ImageBackground
         source={{
-          uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7vFpfZSjG1TiOCrvGcgo0JvbxRWvLeKCZmw&usqp=CAU',
+          uri: 'https://images.unsplash.com/photo-1620355058000-6d5d21504db3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=415&q=80',
         }}
         style={styles.image}>
         <View style={{flex: 2}}>
-          <Text style={styles.text}>{date}</Text>
+          <Text style={styles.text}>{localtime}</Text>
           <Text style={[styles.text, {fontSize: 30, fontStyle: 'normal'}]}>
-            {city}
+            {name}
           </Text>
         </View>
-
         <View style={{flex: 3, flexDirection: 'row'}}>
-          <Text style={{fontSize: 60, color: 'white', margin: 10}}>
-            {temp}°
+          <Text style={{fontSize: 55, color: 'white', margin: 10}}>
+            {temp_c}°C
           </Text>
-          <MI name={icon} size={110} color="white" style={{margin: 20}} />
+          <WeatherIcon condition={condition?.text} day={is_day} />
         </View>
-
         <View style={{flex: 4}}>
-          <Text style={styles.text}>Feels like {feelslike}°</Text>
-          <Text style={styles.text}>{condition}</Text>
+          <Text style={styles.text}>Feels like {feelslike_c}°</Text>
+          <Text style={styles.text}>{condition?.text}</Text>
         </View>
-
         <View
           style={{
             flex: 2,
@@ -181,6 +119,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+  // Later on in your styles..
+  backgroundVideo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+  },
   button: {
     margin: 20,
     borderRadius: 50,
@@ -188,34 +134,3 @@ const styles = StyleSheet.create({
 });
 
 //(weather == sunny) ? 'sunny' : (weather == sunny) ? 'sunny' : 'raining'
-
-// const getLocation = ()=> {
-//     if(navigator.geolocation){
-//         navigator.geolocation.getCurrentPosition((position)=>{
-//             const la=position.coords.latitude;
-//             const lon=position.coords.longitude;
-//             setLat(la);
-//             setLong(lon);
-//             setUrl('http://api.weatherapi.com/v1/current.json?key=1469bcf832b14b239c9114030232705&q=${lat},${long}&aqi=no')
-//             console.log(lat);
-//             console.log(long);
-//         })
-//     }
-// }
-
-// const getWeather = async () => {
-//     try{
-//         const res = await axios.get(url)
-//         setData(res.data);
-//     }catch(error){
-//         console.log('Error fetching weather data:', error);
-//     }
-// }
-
-// <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-//     <Text>Hello world</Text>
-//     <Button
-//         title="Go to Weather Details"
-//         onPress={() => navigation.navigate('WeatherDetails')}
-//     />
-// </View>
