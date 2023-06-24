@@ -4,38 +4,25 @@ import MenuDrawer from 'react-native-side-drawer';
 import {FlatList} from 'react-native-gesture-handler';
 import CITIES from 'cities.json';
 import {SearchBar} from 'react-native-elements';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SideMenu({
   showSideMenu,
   setSelectedCity,
+  requestLocationPermission,
   selectedCity,
 }) {
   const [showCities, setShowCities] = useState(false);
-  const [listCities, setListCities] = useState([
-    {
-      country: 'LB',
-      name: 'Tripoli',
-      lat: '34.43352',
-      lng: '35.84415',
-    },
-  ]);
+  const [currentLocation, setCurrentLocation] = useState(true);
+  const [listCities, setListCities] = useState([]);
   const [search, setSearch] = useState('');
   const [cities, setCities] = useState(null);
 
-  const updateListCities = async () => {
-    try {
-      let value = await AsyncStorage.getItem('listCities');
-      if (value !== null) {
-        setListCities(value);
-        Value = [...listCities, selectedCity];
-        await AsyncStorage.setItem('listCities');
-      }
-    } catch (error) {}
-  };
-
   useEffect(() => {
     searchCities();
+    loadData();
   }, [search]);
+
   const searchCities = () => {
     if (search) {
       let cities = CITIES.filter(
@@ -48,6 +35,29 @@ export default function SideMenu({
       setCities(null);
     }
   };
+
+  const loadData = async () => {
+    try {
+      const storedCities = await AsyncStorage.getItem('listCities');
+      //console.log(storedCities);
+      if (storedCities !== null) {
+        setListCities(JSON.parse(storedCities));
+      }
+    } catch (error) {
+      console.log('Error loading data: ', error);
+    }
+  };
+
+  const addCityToList = async selectedCity => {
+    const updatedList = [...listCities, selectedCity];
+    setListCities(updatedList);
+    try {
+      await AsyncStorage.setItem('listCities', JSON.stringify(updatedList));
+    } catch (error) {
+      console.log('Error saving data: ', error);
+    }
+  };
+  //console.log(selectedCity);
   return (
     <View
       style={{flex: 1, position: 'absolute', zIndex: 9999, top: 0, right: 0}}>
@@ -67,9 +77,10 @@ export default function SideMenu({
                 }}
                 onPress={() => {
                   setShowCities(false);
-                  !listCities.includes(selectedCity)
-                    ? setListCities([...listCities, selectedCity])
-                    : {};
+                  if (!listCities.includes(selectedCity)) {
+                    setListCities([...listCities, selectedCity]);
+                    addCityToList(selectedCity);
+                  }
                 }}>
                 <Text style={{color: '#ecf0f1'}}>Submit</Text>
               </TouchableOpacity>
@@ -82,7 +93,7 @@ export default function SideMenu({
               <FlatList
                 data={cities}
                 style={{height: 400, zIndex: 999999999999}}
-                renderItem={({item}) => (
+                renderItem={({item, index}) => (
                   <TouchableOpacity
                     style={{
                       justifyContent: 'center',
@@ -125,32 +136,54 @@ export default function SideMenu({
                 }}>
                 <Text style={{color: '#ecf0f1'}}>Add City</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  padding: 5,
+                }}
+                onPress={() => {
+                  setCurrentLocation(true);
+                  requestLocationPermission();
+                }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    color: currentLocation ? '#2ecc71' : '#ecf0f1',
+                  }}>
+                  Current Location
+                </Text>
+              </TouchableOpacity>
               <FlatList
                 data={listCities}
                 style={{flex: 1}}
-                renderItem={({item}) => (
-                  <TouchableOpacity
-                    style={{
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      padding: 5,
-                    }}
-                    onPress={() => {
-                      setSelectedCity(item);
-                    }}>
-                    <Text
+                renderItem={({item, index}) => (
+                  <>
+                    <TouchableOpacity
                       style={{
-                        fontSize: 14,
-                        fontWeight: 'bold',
-                        color:
-                          selectedCity?.name == item.name &&
-                          selectedCity?.country == item.country
-                            ? '#2ecc71'
-                            : '#ecf0f1',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: 5,
+                      }}
+                      onPress={() => {
+                        setSelectedCity(item);
+                        setCurrentLocation(false);
                       }}>
-                      {item.name}, {item.country}
-                    </Text>
-                  </TouchableOpacity>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 'bold',
+                          color:
+                            selectedCity?.name == item.name &&
+                            selectedCity?.country == item.country
+                              ? '#2ecc71'
+                              : '#ecf0f1',
+                        }}>
+                        {item.name}, {item.country}
+                      </Text>
+                    </TouchableOpacity>
+                  </>
                 )}
               />
             </View>

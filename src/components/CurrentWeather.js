@@ -3,7 +3,6 @@ import {
   View,
   Button,
   Text,
-  ImageBackground,
   StyleSheet,
   TouchableOpacity,
   Image,
@@ -12,13 +11,15 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import SideMenu from './SideMenu';
 import WeatherIcon from './WeatherIcon';
 import RequestEngine from '../request/engine';
-import WeatherBackground from './WeatherBakground';
+import moment from 'moment';
+import WeatherBackground from './WeatherBackground';
 
 export default function CurrentWeather({
   navigation,
   showSideMenu,
   selectedCity,
   setSelectedCity,
+  requestLocationPermission,
   setShowSideMenu,
 }) {
   const [currentWeather, setCurrentWeather] = useState({});
@@ -51,30 +52,31 @@ export default function CurrentWeather({
     <SafeAreaView style={styles.container}>
       <SideMenu
         showSideMenu={showSideMenu}
+        requestLocationPermission={requestLocationPermission}
         selectedCity={selectedCity}
         setSelectedCity={setSelectedCity}
         setShowSideMenu={setShowSideMenu}
       />
-      <ImageBackground
-        source={{
-          uri: 'https://images.unsplash.com/photo-1620355058000-6d5d21504db3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=415&q=80',
-        }}
-        style={styles.image}>
+      <WeatherBackground day={is_day} condition={condition}>
         <View style={{flex: 2}}>
-          <Text style={styles.text}>{localtime}</Text>
-          <Text style={[styles.text, {fontSize: 30, fontStyle: 'normal'}]}>
+          <Text style={[styles.text, {fontSize: 16}]}>
+            {moment(localtime).format('MMMM DD YYYY , hh:mm A')}
+          </Text>
+          <Text style={[styles.text, {fontSize: 45, fontStyle: 'normal'}]}>
             {name}
           </Text>
         </View>
-        <View style={{flex: 3, flexDirection: 'row'}}>
-          <Text style={{fontSize: 55, color: 'white', margin: 10}}>
+        <View style={{flexDirection: 'row'}}>
+          <Text style={{fontSize: 70, color: 'white', margin: 10}}>
             {temp_c}°C
           </Text>
           <WeatherIcon condition={condition?.text} day={is_day} />
         </View>
-        <View style={{flex: 4}}>
-          <Text style={styles.text}>Feels like {feelslike_c}°</Text>
-          <Text style={styles.text}>{condition?.text}</Text>
+        <View style={{flex: 5}}>
+          <Text style={[styles.text, {fontSize: 20}]}>
+            Feels like {feelslike_c}°C
+          </Text>
+          <Text style={[styles.text, {fontSize: 20}]}>{condition?.text}</Text>
         </View>
         <View
           style={{
@@ -85,14 +87,31 @@ export default function CurrentWeather({
           }}>
           <TouchableOpacity
             onPress={() => navigation.navigate('WeatherDetails')}>
-            <Text style={[styles.text, {marginRight: 10}]}>More Details</Text>
+            <Text
+              style={[
+                styles.text,
+                {
+                  marginRight: 10,
+                  fontWeight: 'bold',
+                  fontSize: 20,
+                  marginRight: 40,
+                },
+              ]}>
+              More Details
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.navigate('Forecasts')}>
-            <Text style={[styles.text, {marginLeft: 10}]}>7-day Forecast</Text>
+            <Text
+              style={[
+                styles.text,
+                {marginLeft: 10, fontWeight: 'bold', fontSize: 20},
+              ]}>
+              7-day Forecast
+            </Text>
           </TouchableOpacity>
         </View>
-      </ImageBackground>
+      </WeatherBackground>
     </SafeAreaView>
   );
 }
@@ -108,21 +127,11 @@ const styles = StyleSheet.create({
   },
   text: {
     color: 'white',
-    fontSize: 12,
-    padding: 5,
-    fontStyle: 'italic',
+    margin: 5,
   },
   image: {
     flex: 1,
     justifyContent: 'center',
-  },
-  // Later on in your styles..
-  backgroundVideo: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
   },
   button: {
     margin: 20,
