@@ -30,6 +30,7 @@ const DayImages = {
   Mist: FoggyDay,
 };
 const NightImages = {
+  Sunny: ClearDay,
   Clear: ClearNight,
   Cloudy: CloudyNight,
   'Partly cloudy': CloudyNight,

@@ -13,8 +13,6 @@ import WeatherIcon from './WeatherIcon';
 import RequestEngine from '../request/engine';
 import moment from 'moment';
 import WeatherBackground from './WeatherBackground';
-import MI from 'react-native-vector-icons/FontAwesome';
-import Md from 'react-native-vector-icons/FontAwesome5';
 
 export default function CurrentWeather({
   navigation,
@@ -83,7 +81,8 @@ export default function CurrentWeather({
             </Text>
           </View>
           <View style={{flexDirection: 'row'}}>
-            <Text style={{fontSize: 70, color: 'white', margin: 10}}>
+            <Text
+              style={{fontSize: 70, color: 'white', margin: 10, marginLeft: 2}}>
               {temp_c}°C
             </Text>
             <WeatherIcon condition={condition?.text} day={is_day} />
@@ -101,43 +100,37 @@ export default function CurrentWeather({
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-            {/* <Button>More Details</Button> */}
             <TouchableOpacity
-              onPress={() => navigation.navigate('WeatherDetails')}>
-              <Md
-                name="list"
-                size={45}
-                color="white"
-                style={{marginRight: 60}}
-              />
-              {/* <Text
+              onPress={() => navigation.navigate('WeatherDetails')}
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.8)',
+                width: '40%',
+                marginLeft: '10%',
+                alignItems: 'center',
+              }}>
+              <Text
                 style={[
                   styles.text,
                   {
-                    marginRight: 10,
                     fontWeight: 'bold',
-                    fontSize: 20,
-                    marginRight: 40,
+                    fontSize: 17,
                   },
                 ]}>
                 More Details
-              </Text> */}
+              </Text>
             </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => navigation.navigate('Forecasts')}>
-              <MI
-                name="calendar"
-                size={45}
-                color="white"
-                style={{marginLeft: 60}}
-              />
-              {/* <Text
-                style={[
-                  styles.text,
-                  {marginLeft: 10, fontWeight: 'bold', fontSize: 20},
-                ]}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Forecasts')}
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.8)',
+                width: '40%',
+                marginLeft: '10%',
+                marginRight: '10%',
+                alignItems: 'center',
+              }}>
+              <Text style={[styles.text, {fontWeight: 'bold', fontSize: 17}]}>
                 7-day Forecast
-              </Text> */}
+              </Text>
             </TouchableOpacity>
           </View>
         </WeatherBackground>
@@ -164,8 +157,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   button: {
-    margin: 20,
     borderRadius: 50,
+    backgroundColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 20,
+    },
+    shadowOpacity: 10,
   },
 });
 
