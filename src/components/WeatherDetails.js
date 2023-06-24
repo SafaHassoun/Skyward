@@ -71,7 +71,7 @@ export default function WeatherDetails({selectedCity}) {
   const getWeather = async () => {
     try {
       const request = new RequestEngine();
-      console.log({selectedCity});
+      //console.log({selectedCity});
       if (selectedCity && selectedCity.lat && selectedCity.lng) {
         const response = await request.getWeatherDetails(
           selectedCity?.lat,
@@ -95,7 +95,7 @@ export default function WeatherDetails({selectedCity}) {
   }
   //  Spinner-end
 
-  console.log(weatherDetails);
+  //console.log(weatherDetails);
   let hours = weatherDetails?.forecast?.forecastday?.[0]?.hour ?? [];
   hours = hours.filter(i => i.time_epoch * 1000 > currentTime);
   return (

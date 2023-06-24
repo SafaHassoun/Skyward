@@ -10,6 +10,8 @@ import RainyNight from '../../Pictures/RainyNight.jpg';
 import Snow from '../../Pictures/Snow.jpg';
 import SnowyNight from '../../Pictures/snowyNight.jpg';
 import WindyDay from '../../Pictures/WindyDay.jpg';
+import FoggyDay from '../../Pictures/Foggy2.jpg';
+import FoggyNight from '../../Pictures/FoggyNight.jpg';
 
 const DayImages = {
   Sunny: ClearDay,
@@ -24,6 +26,8 @@ const DayImages = {
   Rainy: RainyDay,
   'Light rain': RainyDay,
   'Heavy rain': RainyDay,
+  'Patchy light rain with thunder': RainyDay,
+  Mist: FoggyDay,
 };
 const NightImages = {
   Clear: ClearNight,
@@ -37,6 +41,8 @@ const NightImages = {
   Rainy: RainyNight,
   'Light rain': RainyNight,
   'Heavy rain': RainyNight,
+  'Patchy light rain with thunder': RainyNight,
+  Mist: FoggyNight,
 };
 
 export default function WeatherBackground(props) {

@@ -16,6 +16,9 @@ export default function WeatherIcon({condition, day}) {
       case 'Overcast':
         iconName = 'cloud';
         break;
+      case 'Mist':
+        iconName = 'cloud';
+        break;
       case 'Partly cloudy':
         iconName = 'cloud-sun';
         break;
@@ -38,6 +41,9 @@ export default function WeatherIcon({condition, day}) {
         iconName = 'cloud-rain';
         break;
       case 'Heavy rain':
+        iconName = 'cloud-rain';
+        break;
+      case 'Patchy light rain with thunder':
         iconName = 'cloud-rain';
         break;
     }
@@ -71,6 +77,9 @@ export default function WeatherIcon({condition, day}) {
         iconName = 'cloud-rain';
         break;
       case 'Heavy rain':
+        iconName = 'cloud-rain';
+        break;
+      case 'Patchy light rain with thunder':
         iconName = 'cloud-rain';
         break;
     }

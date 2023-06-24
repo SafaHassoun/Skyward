@@ -5,6 +5,7 @@ import {FlatList} from 'react-native-gesture-handler';
 import CITIES from 'cities.json';
 import {SearchBar} from 'react-native-elements';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RI from 'react-native-vector-icons/FontAwesome';
 
 export default function SideMenu({
   showSideMenu,
@@ -58,6 +59,20 @@ export default function SideMenu({
     }
   };
   //console.log(selectedCity);
+
+  const removeCity = async selectedCity => {
+    const cities = listCities.filter(
+      city =>
+        city.name !== selectedCity && city.country !== selectedCity.country,
+    );
+    setListCities(cities);
+    try {
+      await AsyncStorage.setItem('listCities', JSON.stringify(cities));
+    } catch (error) {
+      console.log('Error deleting data: ', error);
+    }
+  };
+
   return (
     <View
       style={{flex: 1, position: 'absolute', zIndex: 9999, top: 0, right: 0}}>
@@ -137,35 +152,38 @@ export default function SideMenu({
                 <Text style={{color: '#ecf0f1'}}>Add City</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  padding: 5,
-                }}
+                style={[
+                  styles.row,
+                  {
+                    justifyContent: 'center',
+                    padding: 5,
+                  },
+                ]}
                 onPress={() => {
                   setCurrentLocation(true);
                   requestLocationPermission();
                 }}>
                 <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 'bold',
-                    color: currentLocation ? '#2ecc71' : '#ecf0f1',
-                  }}>
+                  style={[
+                    styles.column,
+                    {
+                      flex: 1,
+                      marginLeft: '8%',
+                      fontSize: 14,
+                      fontWeight: 'bold',
+                      color: currentLocation ? '#2ecc71' : '#ecf0f1',
+                    },
+                  ]}>
                   Current Location
                 </Text>
               </TouchableOpacity>
               <FlatList
                 data={listCities}
-                style={{flex: 1}}
+                style={{flex: 1, marginLeft: '10%', marginRight: '10%'}}
                 renderItem={({item, index}) => (
-                  <>
+                  <View style={styles.row}>
                     <TouchableOpacity
-                      style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: 5,
-                      }}
+                      style={styles.column}
                       onPress={() => {
                         setSelectedCity(item);
                         setCurrentLocation(false);
@@ -183,7 +201,12 @@ export default function SideMenu({
                         {item.name}, {item.country}
                       </Text>
                     </TouchableOpacity>
-                  </>
+                    <TouchableOpacity
+                      onPress={() => removeCity(selectedCity)}
+                      style={[styles.column, {alignItems: 'flex-end'}]}>
+                      <RI name="remove" color="white" size={20} />
+                    </TouchableOpacity>
+                  </View>
                 )}
               />
             </View>
@@ -202,22 +225,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     margin: 10,
   },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+  },
+  column: {},
 });
-
-{
-  /* <View style={{flexDirection: 'row'}}>
-  <TextInput
-    placeholder="Search"
-    value={text}
-    onChangeText={setText}
-    inputMode="search"
-    style={{
-      //backgroundColor: '#2980b9',
-      color: '#ecf0f1',
-      width: '80%',
-      margin: 5,
-    }}
-  />
-  <MI name="search" size={30} color="#fff" style={{marginTop: 12}} />
-</View>; */
-}
