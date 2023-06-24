@@ -1,102 +1,89 @@
 import React, {useEffect, useState} from 'react';
 import {
   View,
-  Text,
+  Text as DefaultText,
   Image,
   ImageBackground,
   ActivityIndicator,
   StyleSheet,
   FlatList,
+  SafeAreaView,
+  ScrollView,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
-import MI from 'react-native-vector-icons/MaterialCommunityIcons';
+const {width, height} = Dimensions.get('window');
 
-const WeatherApp = ({selectedCity, requestLocationPermission}) => {
-  const [location, setLocation] = useState(null);
-  const [condition, setCondition] = useState(null);
-  const [temp, setTemp] = useState(null);
-  const [humidity, setHumidity] = useState(null);
-  const [wind, setWind] = useState(null);
-  const [hourlyForecast, setHourlyForecast] = useState(null);
-  const [day, setDay] = useState(0);
+import RequestEngine from '../request/engine';
+
+const renderWeatherDetails = ({item, index}) => {
+  return (
+    <View style={[styles.container]}>
+      <View
+        style={[
+          {
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
+        ]}>
+        <Text>{item.time.split(' ')[1]}</Text>
+        {/* <Text>{item.condition.text}</Text> */}
+        <Image
+          source={{uri: 'https://' + item.condition.icon}}
+          style={{width: 50, height: 50}}
+        />
+        {/* <Text>humidity: {item.humidity}</Text> */}
+        <Text>{item.temp_c}°C</Text>
+      </View>
+    </View>
+  );
+};
+const Text = ({style, ...props}) => {
+  return (
+    <DefaultText style={[{color: 'white', fontSize: 14}, style]} {...props} />
+  );
+};
+
+export default function WeatherDetails({selectedCity}) {
   const [icon, setIcon] = useState(null);
-  const [sunrise, setSunrise] = useState(null);
+  const [weatherDetails, setWeatherDetails] = useState({});
+  const currentTime = new Date().getTime();
+  const {localtime, name} = weatherDetails?.location ?? {};
+  const {
+    temp_c,
+    vis_km,
+    feelslike_c,
+    humidity,
+    pressure_in,
+    condition,
+    is_day,
+    wind_kph,
+    gust_kph,
+    wind_dir,
+  } = weatherDetails?.current ?? {};
+  const {moonphase, sunrise, sunset, moonrise, moonset} =
+    weatherDetails?.forecast?.forecastday?.[0]?.astro ?? {};
 
   useEffect(() => {
-    fetchWeatherData();
-    setWeatherIcon();
-  }, []);
+    getWeather();
+  }, [selectedCity]);
 
-  // icon-switch-start
-  const setWeatherIcon = () => {
-    if (day == 1) {
-      switch (condition) {
-        case 'Sunny':
-        case 'Clear':
-          setIcon('sun');
-          break;
-        case 'Cloudy':
-        case 'Partly cloudy':
-        case 'Patchy rain possible':
-          setIcon('cloud-sun');
-          break;
-        case 'Windy':
-          setIcon('wind');
-          break;
-        case 'Snowy':
-          setIcon('snowflake');
-          break;
-        case 'Rainy':
-          setIcon('cloud-rain');
-          break;
-        default:
-          setIcon(null);
-      }
-    } else {
-      switch (condition) {
-        case 'Clear':
-          setIcon('moon');
-          break;
-        case 'Cloudy':
-        case 'Partly cloudy':
-        case 'Patchy rain possible':
-          setIcon('cloud-moon');
-          break;
-        case 'Windy':
-          setIcon('wind');
-          break;
-        case 'Snowy':
-          setIcon('snowflake');
-          break;
-        case 'Rainy':
-          setIcon('cloud-moon-rain');
-          break;
-        default:
-          setIcon(null);
-      }
-    }
-  };
-  // icon-switch-end
-
-  // fetch-weather-start
-  const fetchWeatherData = async () => {
+  const getWeather = async () => {
     try {
-      requestLocationPermission();
-      if (selectedCity) {
-        setLocation(selectedCity.location.name);
-        setCondition(selectedCity.current.condition.text);
-        setTemp(selectedCity.current.temp_c);
-        setHumidity(selectedCity.current.humidity);
-        setWind(selectedCity.current.wind_kph);
-        setHourlyForecast(selectedCity.forecast.forecastday[0].hour);
-        setDay(selectedCity.current.is_day);
-        setSunrise(selectedCity.sunrise);
+      const request = new RequestEngine();
+      console.log({selectedCity});
+      if (selectedCity && selectedCity.lat && selectedCity.lng) {
+        const response = await request.getWeatherDetails(
+          selectedCity?.lat,
+          selectedCity?.lng,
+        );
+
+        setWeatherDetails(response.data);
       }
-    } catch (error) {
-      console.error('Error fetching weather data:', error);
+    } catch (e) {
+      console.log(e, JSON.parse(JSON.stringify(e)));
     }
   };
-  // fetch-weather-end
 
   //  Spinner-start
   if (!selectedCity) {
@@ -108,220 +95,250 @@ const WeatherApp = ({selectedCity, requestLocationPermission}) => {
   }
   //  Spinner-end
 
-  //fetch-hour-start
-  const renderHourlyForecast = ({item}) => (
-    <View style={styles.listItem}>
-      <Text style={styles.listItemText}>{item.time.split(' ')[1]}</Text>
-      <View style={styles.hourlyWeatherIcon}>
-        <Text style={styles.listItemText}>
-          <MI name={item.day ? 'sun' : 'moon'} size={20} color="black" />
-        </Text>
-      </View>
-      <Text style={styles.listItemText}>{item.condition.text}</Text>
-      <Text style={styles.listItemText}>{item.temp_c}°C</Text>
-      <Text style={styles.listItemText}>{item.humidity}%</Text>
-      <Text style={styles.listItemText}>
-        <MI name={wind} size={20} color="green" style={styles.weatherIcon} />
-        {item.wind_kph} km/h
-      </Text>
-    </View>
-  );
-  //fetch-hour-end
-
-  // const renderWeatherDetail = () => (
-  //   <View>
-  //     <View style={styles.listItem}>
-  //       <Text style={styles.listItemText}>{temp}°C</Text>
-  //       <Text style={styles.listItemText}>
-  //         <MI name={icon} size={20} color="black" style={styles.weatherIcon} />
-  //         {condition}
-  //       </Text>
-  //     </View>
-  //     <View style={styles.listItem}>
-  //       <Text style={styles.listItemText}>H: {humidity}%</Text>
-  //       <Text style={styles.listItemText}>W: {wind} km/h</Text>
-  //     </View>
-  //   </View>
-  // );
-
-  // const weatherDetails = [
-  //   {label: 'Condition', value: condition},
-  //   {label: 'Temperature', value: `${temp}°C`},
-  //   {label: 'Humidity', value: `${humidity}%`},
-  //   {label: 'Wind', value: `${wind} km/h`},
-  // ];
-
+  console.log(weatherDetails);
+  let hours = weatherDetails?.forecast?.forecastday?.[0]?.hour ?? [];
+  hours = hours.filter(i => i.time_epoch * 1000 > currentTime);
   return (
-    <View style={{flex: 1}} className="relative">
-      {/* quick-weather-section-start */}
-      <View style={styles.container2}>
-        <View style={styles.cardBody2}>
-          <View style={styles.bodyContent2}>
-            <Text style={styles.titleStyle2}>
-              {location} {sunrise}
-            </Text>
-            <Text style={styles.subtitleStyle2}> {condition}</Text>
-          </View>
-          <View style={[styles.container, {flex: 1}]}>
-            <Text style={[styles.cardItemImagePlace2]}>
-              {/* <MI
-              name={icon}
-              size={20}
-              color="green"
-              style={styles.weatherIcon}
-            /> */}
-              {temp}°C
-            </Text>
-          </View>
-        </View>
-        <View style={styles.actionBody2}>
-          <TouchableOpacity style={styles.actionButton12}>
-            <Text style={styles.actionText12}>H: {humidity}%</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton22}>
-            <Text style={styles.actionText22}>W: {wind} km/h</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      {/* quick-weather-section-end */}
+    <SafeAreaView>
+      <ImageBackground
+        source={{
+          uri: 'https://images.unsplash.com/photo-1620355058000-6d5d21504db3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=415&q=80',
+        }}
+        style={{height, width}}
+        blurRadius={20}>
+        <ScrollView>
+          <View>
+            {/* <Text style={styles.title}>Sunrise & Sunset :</Text> */}
+            <View style={styles.container}>
+              <View
+                style={[
+                  styles.card,
+                  {justifyContent: 'center', alignItems: 'center'},
+                ]}>
+                <Text>Sunrise</Text>
+                <Image
+                  source={require('./icons/sunrise1.png')}
+                  size={30}
+                  color="#900"
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 10,
+                    marginVertical: 10,
+                  }}
+                />
+                <Text>{sunrise}</Text>
+              </View>
+              <View
+                style={[
+                  styles.card,
+                  {justifyContent: 'center', alignItems: 'center'},
+                ]}>
+                <Text>Sunset</Text>
+                <Image
+                  source={require('./icons/sunset.png')}
+                  size={30}
+                  color="#900"
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 10,
+                    marginVertical: 10,
+                  }}
+                />
+                <Text>{sunset}</Text>
+              </View>
+            </View>
 
-      {/* hour-section-start */}
-      <View style={styles.container}>
-        {/* <View style={styles.header}>
-            <Text style={styles.headerText}> {location}</Text>
-          </View> */}
-        {/* <FlatList
-            data={weatherDetails}
-            renderItem={renderWeatherDetail}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={{marginBottom: 10}}
-          /> */}
-        {/* <View style={styles.header}>
-            <Text style={styles.headerText}>Hourly Forecast</Text>
-          </View> */}
-        <FlatList
-          data={hourlyForecast}
-          renderItem={renderHourlyForecast}
-          keyExtractor={(item, index) => index.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{paddingHorizontal: 10}}
-        />
-      </View>
+            {/* <WeatherIcon condition={condition?.text} day={is_day} /> */}
 
-      {/* hour-section-end */}
-    </View>
+            <FlatList
+              data={hours}
+              renderItem={renderWeatherDetails}
+              keyExtractor={(item, index) => index.toString()}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{paddingHorizontal: 10}}
+            />
+
+            <View style={styles.container}>
+              <View
+                style={[
+                  styles.card1,
+                  {justifyContent: 'center', alignItems: 'center'},
+                ]}>
+                <Text>Visibilty</Text>
+                <Image
+                  source={require('./icons/visibility.png')}
+                  size={30}
+                  color="#900"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    marginVertical: 10,
+                  }}
+                />
+                <Text>{vis_km} Km</Text>
+              </View>
+              <View
+                style={[
+                  styles.card1,
+                  {justifyContent: 'center', alignItems: 'center'},
+                ]}>
+                <Text>Feels like</Text>
+                <Image
+                  source={require('./icons/temperature.png')}
+                  size={30}
+                  color="#900"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    marginVertical: 10,
+                  }}
+                />
+                <Text>{feelslike_c}°C</Text>
+              </View>
+              <View
+                style={[
+                  styles.card1,
+                  {justifyContent: 'center', alignItems: 'center'},
+                ]}>
+                <Text>Humidity</Text>
+                <Image
+                  source={require('./icons/humidity.png')}
+                  size={30}
+                  color="#900"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    marginVertical: 10,
+                  }}
+                />
+                <Text>{humidity} </Text>
+              </View>
+            </View>
+
+            <View style={styles.container}>
+              <View
+                style={[
+                  styles.card1,
+                  {justifyContent: 'center', alignItems: 'center'},
+                ]}>
+                <Text>Pressure</Text>
+                <Image
+                  source={require('./icons/smoke.png')}
+                  size={30}
+                  color="#900"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    marginVertical: 10,
+                  }}
+                />
+                <Text>{pressure_in}</Text>
+              </View>
+              <View
+                style={[
+                  styles.card1,
+                  {justifyContent: 'center', alignItems: 'center'},
+                ]}>
+                <Text>Direction </Text>
+                <Image
+                  source={require('./icons/wind-direction.png')}
+                  size={30}
+                  color="#900"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    marginVertical: 10,
+                  }}
+                />
+                <Text>{wind_dir}</Text>
+              </View>
+              <View
+                style={[
+                  styles.card1,
+                  {justifyContent: 'center', alignItems: 'center'},
+                ]}>
+                <Text>Wind </Text>
+                <Image
+                  source={require('./icons/wind.png')}
+                  size={30}
+                  color="#900"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    marginVertical: 10,
+                  }}
+                />
+                <Text>{wind_kph}Kph</Text>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+      </ImageBackground>
+    </SafeAreaView>
   );
-};
+}
 
-export default WeatherApp;
 const styles = StyleSheet.create({
-  // start-card
-  container2: {
-    flexWrap: 'nowrap',
-    backgroundColor: '#3E5C76',
-    elevation: 3,
-    overflow: 'hidden',
-  },
-  cardBody2: {
+  container: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 10,
   },
-  bodyContent2: {
-    padding: 16,
-    paddingTop: 24,
-    flex: 1,
+  card: {
+    width: '40%',
+    aspectRatio: 1,
+    backgroundColor: 'transparent',
+    borderRadius: 8,
+    elevation: 1,
+    marginBottom: 16,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
-  titleStyle2: {
+  card1: {
+    width: '30%',
+    aspectRatio: 1,
+    backgroundColor: 'transparent',
+    borderRadius: 8,
+    elevation: 1,
+    marginBottom: 16,
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  card2: {
+    width: 130,
+    height: 130,
+    aspectRatio: 1,
+    backgroundColor: 'rgba(0, 0, 255, 0.5)',
+    borderRadius: 8,
+    elevation: 2,
+    marginBottom: 16,
+  },
+  rectangle: {
+    width: '100%',
+
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 8,
+    elevation: 2,
+    marginBottom: 16,
+  },
+
+  title: {
     fontSize: 24,
-    color: '#fff',
-    paddingBottom: 12,
-  },
-  subtitleStyle2: {
-    fontSize: 14,
-    color: '#fff',
-    lineHeight: 16,
-    opacity: 0.5,
-  },
-  cardItemImagePlace2: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderWidth: 1,
-    borderRadius: 25,
-    borderColor: '#CCC',
-    display: 'flex',
-    textAlign: 'center',
-    alignContent: 'center',
-  },
-  actionBody2: {
-    padding: 8,
-    flexDirection: 'row',
-  },
-  actionButton12: {
-    padding: 8,
-    height: 36,
-  },
-  actionText12: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.9,
-  },
-  actionButton22: {
-    padding: 8,
-    height: 36,
-  },
-  actionText22: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.9,
-  },
-
-  // end-card
-
-  //hourly-start
-  container: {
-    marginTop: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 0,
-  },
-  image: {
-    flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'center',
-  },
-  header: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  headerText: {
-    fontSize: 18,
     fontWeight: 'bold',
+    marginBottom: 8,
+    marginTop: 8,
+    textAlign: 'center',
     color: 'white',
-    textAlign: 'center',
-  },
-  listItem: {
-    // '#ee332e
-    backgroundColor: 'rgba(238,51,46,0.8)',
-    padding: 10,
-    borderWidth: 1,
-    borderRadius: 25,
-    borderColor: '#CCC',
-    display: 'flex',
-  },
-  listItemText: {
-    fontSize: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    textAlign: 'center',
-  },
-  weatherIcon: {
-    marginRight: 5,
-  },
-  hourlyWeatherIcon: {
-    marginVertical: 5,
-    alignItems: 'center',
   },
 });
