@@ -41,7 +41,7 @@ function AppStack() {
         const longitude = position.coords.longitude;
         const request = new RequestEngine();
         const res = await request.getCurrentWeather(latitude, longitude);
-        //console.log(res, 'res');
+        console.log(res, 'res');
         if (res?.data?.location?.lon) {
           res.data.location.lng = res.data.location.lon;
         }
@@ -77,6 +77,7 @@ function AppStack() {
         {_props => (
           <CurrentWeather
             {..._props}
+            requestLocationPermission={requestLocationPermission}
             selectedCity={selectedCity}
             setSelectedCity={setSelectedCity}
             showSideMenu={showSideMenu}

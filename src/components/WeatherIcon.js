@@ -13,6 +13,9 @@ export default function WeatherIcon({condition, day}) {
       case 'Cloudy':
         iconName = 'cloud-sun';
         break;
+      case 'Overcast':
+        iconName = 'cloud';
+        break;
       case 'Partly cloudy':
         iconName = 'cloud-sun';
         break;
@@ -26,6 +29,15 @@ export default function WeatherIcon({condition, day}) {
         iconName = 'snowflake';
         break;
       case 'Rainy':
+        iconName = 'cloud-rain';
+        break;
+      case 'Light rain':
+        iconName = 'cloud-rain';
+        break;
+      case 'Moderate or heavy rain with thunder':
+        iconName = 'cloud-rain';
+        break;
+      case 'Heavy rain':
         iconName = 'cloud-rain';
         break;
     }
@@ -52,7 +64,16 @@ export default function WeatherIcon({condition, day}) {
       case 'Rainy':
         iconName = 'cloud-moon-rain';
         break;
+      case 'Overcast':
+        iconName = 'cloud';
+        break;
+      case 'Moderate or heavy rain with thunder':
+        iconName = 'cloud-rain';
+        break;
+      case 'Heavy rain':
+        iconName = 'cloud-rain';
+        break;
     }
   }
-  return <MI name={iconName} size={110} color="white" style={{margin: 20}} />;
+  return <MI name={iconName} size={110} color="white" style={{margin: 10}} />;
 }
