@@ -3,7 +3,7 @@ const KEY = 'b66770c309e04e0c92572314231706';
 class RequestEngine {
   constructor(props) {
     this.request = Axios.create({
-      baseURL: 'http://api.weatherapi.com/v1',
+      baseURL: 'https://api.weatherapi.com/v1',
       timeout: 5000,
     });
   }
