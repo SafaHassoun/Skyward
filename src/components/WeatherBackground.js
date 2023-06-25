@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {ImageBackground} from 'react-native';
 import ClearDay from '../../Pictures/ClearDay.jpg';
 import ClearNight from '../../Pictures/ClearNight.jpg';

@@ -37,7 +37,7 @@ export default function CurrentWeather({
           selectedCity?.name,
           selectedCity?.country,
         );
-        //console.log({response}, 'esponse');
+        //console.log({response}, 'response');
         setCurrentWeather(response.data);
         setIsLoading(false);
       }
@@ -52,11 +52,6 @@ export default function CurrentWeather({
     }, 2000);
   }, [selectedCity]);
 
-  const handleReload = () => {
-    setIsLoading(true);
-    getWeather();
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <SideMenu
@@ -68,7 +63,7 @@ export default function CurrentWeather({
       />
       {isLoading ? (
         <View>
-          <ActivityIndicator size="large" style={{margin: '50%'}} />
+          <ActivityIndicator size="large" style={{marginTop: '80%'}} />
         </View>
       ) : (
         <WeatherBackground day={is_day} condition={condition}>
@@ -107,6 +102,7 @@ export default function CurrentWeather({
                 width: '40%',
                 marginLeft: '10%',
                 alignItems: 'center',
+                borderRadius: 10,
               }}>
               <Text
                 style={[
@@ -127,6 +123,7 @@ export default function CurrentWeather({
                 marginLeft: '10%',
                 marginRight: '10%',
                 alignItems: 'center',
+                borderRadius: 10,
               }}>
               <Text style={[styles.text, {fontWeight: 'bold', fontSize: 17}]}>
                 7-day Forecast

@@ -84,5 +84,5 @@ export default function WeatherIcon({condition, day}) {
         break;
     }
   }
-  return <MI name={iconName} size={100} color="white" style={{margin: 10}} />;
+  return <MI name={iconName} size={80} color="white" style={{margin: 25}} />;
 }

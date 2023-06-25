@@ -63,7 +63,8 @@ export default function SideMenu({
   const removeCity = async selectedCity => {
     const cities = listCities.filter(
       city =>
-        city.name !== selectedCity && city.country !== selectedCity.country,
+        city.name !== selectedCity.name ||
+        city.country !== selectedCity.country,
     );
     setListCities(cities);
     try {
