@@ -7,7 +7,6 @@ import {
   FlatList,
   Pressable,
   Animated,
-  TouchableHighlight,
   Dimensions,
 } from 'react-native';
 import RequestEngine from '../request/engine';
@@ -15,6 +14,7 @@ import moment from 'moment';
 import MI from 'react-native-vector-icons/FontAwesome5';
 import MF from 'react-native-vector-icons/Feather';
 import MC from 'react-native-vector-icons/Ionicons';
+import WeatherBackground from './WeatherBackground';
 
 const {width, height} = Dimensions.get('window');
 const styles = StyleSheet.create({
@@ -241,13 +241,10 @@ const DayWeatherRow = ({
 };
 
 export default function Forecasts({selectedCity}) {
+  const [weatherForecast, setWatherForecast] = useState({});
   const [forecast, setForecast] = useState({});
   const [isDetailVisible, setDetailVisible] = useState({});
-  const {date} = forecast?.forecastday ?? {};
-  const {condition, mintemp_c, maxtemp_c} = forecast?.forecastday?.day ?? {};
-  const ImageBackgroundForecast =
-    'https://images.pexels.com/photos/7424255/pexels-photo-7424255.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
-
+  const {condition, is_day} = weatherForecast?.current ?? {};
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const getWeather = async () => {
@@ -261,6 +258,7 @@ export default function Forecasts({selectedCity}) {
         );
         //console.log({response}, 'esponse');
         setForecast(response.data.forecast.forecastday);
+        setWatherForecast(response.data);
       }
     } catch (e) {
       console.log(e, JSON.parse(JSON.stringify(e)));
@@ -272,31 +270,28 @@ export default function Forecasts({selectedCity}) {
   }, [selectedCity]);
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={{uri: ImageBackgroundForecast}}
-        style={StyleSheet.absoluteFill}
-        blurRadius={20}
-      />
-      <Text style={styles.title}>7-Day Forecast</Text>
-      <Animated.FlatList
-        data={forecast}
-        showsVerticalScrollIndicator={false}
-        onScroll={Animated.event(
-          [{nativeEvent: {contentOffset: {y: scrollY}}}],
-          {useNativeDriver: true},
-        )}
-        renderItem={({item, index}) => (
-          <DayWeatherRow
-            item={item}
-            index={index}
-            scrollY={scrollY}
-            isDetailVisible={isDetailVisible}
-            setDetailVisible={setDetailVisible}
-          />
-        )}
-        style={{flex: 1}}
-      />
-    </View>
+    <WeatherBackground day={is_day} condition={condition}>
+      <View style={styles.container}>
+        <Text style={styles.title}>7-Day Forecast</Text>
+        <Animated.FlatList
+          data={forecast}
+          showsVerticalScrollIndicator={false}
+          onScroll={Animated.event(
+            [{nativeEvent: {contentOffset: {y: scrollY}}}],
+            {useNativeDriver: true},
+          )}
+          renderItem={({item, index}) => (
+            <DayWeatherRow
+              item={item}
+              index={index}
+              scrollY={scrollY}
+              isDetailVisible={isDetailVisible}
+              setDetailVisible={setDetailVisible}
+            />
+          )}
+          style={{flex: 1}}
+        />
+      </View>
+    </WeatherBackground>
   );
 }
