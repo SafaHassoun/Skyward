@@ -9,10 +9,10 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import SideMenu from './SideMenu';
-import WeatherIcon from './WeatherIcon';
 import RequestEngine from '../request/engine';
 import moment from 'moment';
 import WeatherBackground from './WeatherBackground';
+import WeatherIcon from './WeatherIcon';
 
 export default function CurrentWeather({
   navigation,
@@ -25,7 +25,7 @@ export default function CurrentWeather({
   const [isLoading, setIsLoading] = useState(true);
   const [currentWeather, setCurrentWeather] = useState({});
   const {localtime, name} = currentWeather?.location ?? {};
-  const {temp_c, feelslike_c, condition, is_day} =
+  const {temp_c, temp_f, feelslike_c, feelslike_f, condition, is_day} =
     currentWeather?.current ?? {};
 
   const getWeather = async () => {
@@ -67,26 +67,49 @@ export default function CurrentWeather({
         </View>
       ) : (
         <WeatherBackground day={is_day} condition={condition}>
-          <View style={{flex: 2}}>
-            <Text style={[styles.text, {fontSize: 16}]}>
-              {moment(localtime).format('MMMM DD YYYY , hh:mm A')}
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={[styles.text, {fontSize: 15}]}>
+              Last refreshed at : {moment(localtime).format('hh:mm A')}
             </Text>
-            <Text style={[styles.text, {fontSize: 45, fontStyle: 'normal'}]}>
+            <Text style={[styles.text, {fontSize: 35, fontStyle: 'normal'}]}>
               {name}
             </Text>
           </View>
-          <View style={{flexDirection: 'row'}}>
-            <Text
-              style={{fontSize: 70, color: 'white', margin: 10, marginLeft: 2}}>
-              {temp_c}°C
+          <View
+            style={{
+              //flexDirection: 'row',
+              //justifyContent: 'space-between',
+              //paddingVertical: 6,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 110, color: 'white'}}>
+              {temp_c}
+              <Text
+                style={{
+                  fontSize: 40,
+                  verticalAlign: 'top',
+                }}>
+                °C
+              </Text>
             </Text>
-            <WeatherIcon condition={condition?.text} day={is_day} />
+            {/* <WeatherIcon condition={condition?.text} day={is_day} /> */}
           </View>
-          <View style={{flex: 5}}>
+          <View
+            style={{
+              //flex: 5,
+              //flexDirection: 'row',
+              //justifyContent: 'space-between',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
             <Text style={[styles.text, {fontSize: 20}]}>
-              Feels like {feelslike_c}°C
+              Feels like {feelslike_c}
+              <Text style={{fontSize: 13, verticalAlign: 'super'}}>°C</Text>
             </Text>
-            <Text style={[styles.text, {fontSize: 20}]}>{condition?.text}</Text>
+            <Text style={[styles.text, {fontSize: 20, marginRight: 25}]}>
+              {condition?.text}
+            </Text>
           </View>
           <View
             style={{
@@ -94,11 +117,12 @@ export default function CurrentWeather({
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
+              marginTop: '70%',
             }}>
             <TouchableOpacity
               onPress={() => navigation.navigate('WeatherDetails')}
               style={{
-                backgroundColor: 'rgba(255,255,255,0.8)',
+                backgroundColor: 'white',
                 width: '40%',
                 marginLeft: '10%',
                 alignItems: 'center',
@@ -108,25 +132,25 @@ export default function CurrentWeather({
                 style={[
                   styles.text,
                   {
-                    fontWeight: 'bold',
                     fontSize: 17,
+                    color: '#2d98da',
                   },
                 ]}>
-                More Details
+                Hourly Forecast
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => navigation.navigate('Forecasts')}
               style={{
-                backgroundColor: 'rgba(255,255,255,0.8)',
+                backgroundColor: 'white',
                 width: '40%',
                 marginLeft: '10%',
                 marginRight: '10%',
                 alignItems: 'center',
                 borderRadius: 10,
               }}>
-              <Text style={[styles.text, {fontWeight: 'bold', fontSize: 17}]}>
-                7-day Forecast
+              <Text style={[styles.text, {fontSize: 17, color: '#2d98da'}]}>
+                Daily Forecast
               </Text>
             </TouchableOpacity>
           </View>
