@@ -69,9 +69,9 @@ export default function CurrentWeather({
         <WeatherBackground day={is_day} condition={condition}>
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <Text style={[styles.text, {fontSize: 15}]}>
-              Last refreshed at : {moment(localtime).format('hh:mm A')}
+              Last refreshed at : {moment(localtime).format('LT')}
             </Text>
-            <Text style={[styles.text, {fontSize: 35, fontStyle: 'normal'}]}>
+            <Text style={[styles.text, {fontSize: 40, fontStyle: 'normal'}]}>
               {name}
             </Text>
           </View>
