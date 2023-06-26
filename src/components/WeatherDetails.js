@@ -15,6 +15,10 @@ import {
 const {width, height} = Dimensions.get('window');
 
 import RequestEngine from '../request/engine';
+import WeatherBackground from './WeatherBackground';
+import MI from 'react-native-vector-icons/FontAwesome5';
+import MF from 'react-native-vector-icons/Feather';
+import MC from 'react-native-vector-icons/Ionicons';
 
 const renderWeatherDetails = ({item, index}) => {
   return (
@@ -34,13 +38,14 @@ const renderWeatherDetails = ({item, index}) => {
         />
         {/* <Text>humidity: {item.humidity}</Text> */}
         <Text>{item.temp_c}°C</Text>
+        <Text>{item.will_it_rain}%</Text>
       </View>
     </View>
   );
 };
 const Text = ({style, ...props}) => {
   return (
-    <DefaultText style={[{color: 'white', fontSize: 14}, style]} {...props} />
+    <DefaultText style={[{color: 'black', fontSize: 14}, style]} {...props} />
   );
 };
 
@@ -99,190 +104,122 @@ export default function WeatherDetails({selectedCity}) {
   let hours = weatherDetails?.forecast?.forecastday?.[0]?.hour ?? [];
   hours = hours.filter(i => i.time_epoch * 1000 > currentTime);
   return (
-    <SafeAreaView>
-      <ImageBackground
-        source={{
-          uri: 'https://images.unsplash.com/photo-1620355058000-6d5d21504db3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=415&q=80',
-        }}
-        style={{height, width}}
-        blurRadius={20}>
-        <ScrollView>
-          <View>
-            {/* <Text style={styles.title}>Sunrise & Sunset :</Text> */}
-            <View style={styles.container}>
-              <View
-                style={[
-                  styles.card,
-                  {justifyContent: 'center', alignItems: 'center'},
-                ]}>
-                <Text>Sunrise</Text>
-                <Image
-                  source={require('./icons/sunrise1.png')}
-                  size={30}
-                  color="#900"
-                  style={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                />
-                <Text>{sunrise}</Text>
-              </View>
-              <View
-                style={[
-                  styles.card,
-                  {justifyContent: 'center', alignItems: 'center'},
-                ]}>
-                <Text>Sunset</Text>
-                <Image
-                  source={require('./icons/sunset.png')}
-                  size={30}
-                  color="#900"
-                  style={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                />
-                <Text>{sunset}</Text>
-              </View>
-            </View>
+    <SafeAreaView style={styles.container1}>
+      <WeatherBackground day={is_day} condition={condition}>
+        <View style={styles.container}>
+          <View
+            style={[
+              styles.card,
 
-            {/* <WeatherIcon condition={condition?.text} day={is_day} /> */}
+              {justifyContent: 'center', alignItems: 'center'},
+            ]}>
+            <Text>Sunrise</Text>
+            <Text>
+              <MF name="sunrise" size={60} color="#0099cc" />
+            </Text>
 
-            <FlatList
-              data={hours}
-              renderItem={renderWeatherDetails}
-              keyExtractor={(item, index) => index.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{paddingHorizontal: 10}}
-            />
-
-            <View style={styles.container}>
-              <View
-                style={[
-                  styles.card1,
-                  {justifyContent: 'center', alignItems: 'center'},
-                ]}>
-                <Text>Visibilty</Text>
-                <Image
-                  source={require('./icons/visibility.png')}
-                  size={30}
-                  color="#900"
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                />
-                <Text>{vis_km} Km</Text>
-              </View>
-              <View
-                style={[
-                  styles.card1,
-                  {justifyContent: 'center', alignItems: 'center'},
-                ]}>
-                <Text>Feels like</Text>
-                <Image
-                  source={require('./icons/temperature.png')}
-                  size={30}
-                  color="#900"
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                />
-                <Text>{feelslike_c}°C</Text>
-              </View>
-              <View
-                style={[
-                  styles.card1,
-                  {justifyContent: 'center', alignItems: 'center'},
-                ]}>
-                <Text>Humidity</Text>
-                <Image
-                  source={require('./icons/humidity.png')}
-                  size={30}
-                  color="#900"
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                />
-                <Text>{humidity} </Text>
-              </View>
-            </View>
-
-            <View style={styles.container}>
-              <View
-                style={[
-                  styles.card1,
-                  {justifyContent: 'center', alignItems: 'center'},
-                ]}>
-                <Text>Pressure</Text>
-                <Image
-                  source={require('./icons/smoke.png')}
-                  size={30}
-                  color="#900"
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                />
-                <Text>{pressure_in}</Text>
-              </View>
-              <View
-                style={[
-                  styles.card1,
-                  {justifyContent: 'center', alignItems: 'center'},
-                ]}>
-                <Text>Direction </Text>
-                <Image
-                  source={require('./icons/wind-direction.png')}
-                  size={30}
-                  color="#900"
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                />
-                <Text>{wind_dir}</Text>
-              </View>
-              <View
-                style={[
-                  styles.card1,
-                  {justifyContent: 'center', alignItems: 'center'},
-                ]}>
-                <Text>Wind </Text>
-                <Image
-                  source={require('./icons/wind.png')}
-                  size={30}
-                  color="#900"
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                />
-                <Text>{wind_kph}Kph</Text>
-              </View>
-            </View>
+            <Text>{sunrise}</Text>
           </View>
-        </ScrollView>
-      </ImageBackground>
+          <View
+            style={[
+              styles.card,
+              {justifyContent: 'center', alignItems: 'center'},
+            ]}>
+            <Text>Sunset</Text>
+            <Text>
+              <MF name="sunset" size={60} color="#0099cc" />
+            </Text>
+
+            <Text>{sunset}</Text>
+          </View>
+        </View>
+        <View>
+          <FlatList
+            data={hours}
+            renderItem={renderWeatherDetails}
+            keyExtractor={(item, index) => index.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{paddingVertical: 10}}
+          />
+        </View>
+
+        <View style={styles.container}>
+          <View
+            style={[
+              styles.card1,
+              {justifyContent: 'center', alignItems: 'center'},
+            ]}>
+            <Text>Visibilty</Text>
+            <Text>
+              <MI name="eye" size={40} color="#0099cc" />
+            </Text>
+
+            <Text>{vis_km} Km</Text>
+          </View>
+          <View
+            style={[
+              styles.card1,
+              {justifyContent: 'center', alignItems: 'center'},
+            ]}>
+            <Text>Feels like</Text>
+            <Text>
+              <MI name="thermometer-half" size={40} color="#0099cc" />
+            </Text>
+            <Text>{feelslike_c} °C</Text>
+          </View>
+          <View
+            style={[
+              styles.card1,
+              {justifyContent: 'center', alignItems: 'center'},
+            ]}>
+            <Text>Humidity</Text>
+            <Text>
+              <MC name="water" size={40} color="#0099cc" />
+            </Text>
+
+            <Text>{humidity} %</Text>
+          </View>
+        </View>
+
+        <View style={styles.container}>
+          <View
+            style={[
+              styles.card1,
+              {justifyContent: 'center', alignItems: 'center'},
+            ]}>
+            <Text>Pressure</Text>
+            <Text>
+              <MI name="water" size={40} color="#0099cc" />
+            </Text>
+            <Text>{pressure_in} Psi</Text>
+          </View>
+          <View
+            style={[
+              styles.card1,
+              {justifyContent: 'center', alignItems: 'center'},
+            ]}>
+            <Text>Direction </Text>
+            <Text>
+              <MI name="location-arrow" size={40} color="#0099cc" />
+            </Text>
+
+            <Text>{wind_dir}</Text>
+          </View>
+          <View
+            style={[
+              styles.card1,
+              {justifyContent: 'center', alignItems: 'center'},
+            ]}>
+            <Text>Wind</Text>
+            <Text>
+              <MF name="wind" size={40} color="#0099cc" />
+            </Text>
+
+            <Text>{wind_kph} Kph</Text>
+          </View>
+        </View>
+      </WeatherBackground>
     </SafeAreaView>
   );
 }
@@ -293,27 +230,46 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 10,
+    paddingTop: 20,
+  },
+  container1: {
+    flex: 1,
+    flexDirection: 'column',
   },
   card: {
     width: '40%',
     aspectRatio: 1,
-    backgroundColor: 'transparent',
-    borderRadius: 8,
-    elevation: 1,
-    marginBottom: 16,
+
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    // marginBottom: 20,
+    borderRadius: 15,
+
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 20,
+    },
+    shadowOpacity: 10,
+    shadowRadius: 50,
+
     paddingTop: 10,
     paddingBottom: 10,
   },
+
   card1: {
     width: '30%',
     aspectRatio: 1,
-    backgroundColor: 'transparent',
-    borderRadius: 8,
-    elevation: 1,
-    marginBottom: 16,
-    paddingTop: 10,
-    paddingBottom: 10,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    // marginBottom: 20,
+    borderRadius: 15,
+
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 20,
+    },
+    shadowOpacity: 10,
+    shadowRadius: 50,
   },
   card2: {
     width: 130,
