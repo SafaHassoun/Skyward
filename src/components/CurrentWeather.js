@@ -105,7 +105,7 @@ export default function CurrentWeather({
             }}>
             <Text style={[styles.text, {fontSize: 20}]}>
               Feels like {feelslike_c}
-              <Text style={{fontSize: 13, verticalAlign: 'super'}}>°C</Text>
+              <Text style={{fontSize: 13, verticalAlign: 'top'}}>°C</Text>
             </Text>
             <Text style={[styles.text, {fontSize: 20, marginRight: 25}]}>
               {condition?.text}
